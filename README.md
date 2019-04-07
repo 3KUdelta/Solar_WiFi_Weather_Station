@@ -9,4 +9,8 @@ Major changes:
 - allow both, Blynk and ThingSpeak API together
 - redesigned box (simplified printing, less plastic usage)
 
+Blynk Example:
+[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2945.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
+
+ThinkSpeak Example (ThingView iOS):
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2945.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
