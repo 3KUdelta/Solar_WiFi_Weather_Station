@@ -9,4 +9,4 @@ Major changes:
 - allow both, Blynk and ThingSpeak API together
 - redesigned box (simplified printing, less plastic usage)
 
-[![Solar Wifi Weather Station](https://github.com/3KUdelta/espaper-weatherstation/blob/master/ESPaper_Weather_Station.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
+[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2945.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
