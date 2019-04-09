@@ -11,7 +11,7 @@
 
   Needed libraries:
   <Adafruit_Sensor.h>  --> Adafruit unified sensor
-  <Adafruit_BME280.h>  --> Adafrout BME280 sensor
+  <Adafruit_BME280.h>  --> Adafruit BME280 sensor
   <BlynkSimpleEsp8266.h> --> Blynk
 
   This is a library for the BME280 humidity, temperature & pressure sensor
