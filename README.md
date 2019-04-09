@@ -9,9 +9,9 @@ Major changes:
 - allow both, Blynk and ThingSpeak API together
 - redesigned box (simplified printing, less plastic usage, full snap-in)
 
-Do you want to print the box: https://www.thingiverse.com/thing:3551386
+Print the box yourself: https://www.thingiverse.com/thing:3551386
 
-[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2945.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
+[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
 Blynk Example:
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2945.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
