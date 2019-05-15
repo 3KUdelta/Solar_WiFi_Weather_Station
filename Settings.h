@@ -1,6 +1,8 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.1
-  Authors: Keith Hungerford and Debasish Dutta / Modifications by 3KU_Delta (MarcS)
+  Project Name : Solar Powered WiFi Weather Station V2.3
+  Features: temperature, dewpoint, heat index, humidity, absolute pressure, relative pressure, battery status and
+  the famous Zambretti Forecaster (multi lingual)
+  Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com
 
 ******* configuration control constant for use of Blynk and/or Thingspeak ***/
@@ -11,20 +13,30 @@ const String App2 = "Thingspeak";    //  disable if not applicable
 
 /****** Blink or ThingSpeak Settings ****************************************/
 
-char auth[] = "your_blynk_auth_code"; // Blynk Auth Token
+char auth[] = "your Blynk Auth Token"; // Blynk Auth Token
 
-char ssid[] = "your_ssid";                           // WiFi Router ssid
-char pass[] = "your_router_password";             // WiFi Router password
+char ssid[] = "your SSID";                           // WiFi Router ssid
+char pass[] = "your Password";             // WiFi Router password
 
 const char* server = "api.thingspeak.com";        // Thingspeak Write API
-const char* api_key = "your_thingspeak_write_api";         // API write key 
+const char* api_key = "your Thingspeak API key";         // API write key 
 
 /****** Additional Settings **************************************************/
 
-#define TEMP_CORR (-1)              //Manual correction of temp sensor (mine reads 1 degree too high)
-#define ELEVATION (505)             //Enter your elevation in m above ASL to calculate rel pressure (MSL/QNH) at your place
+#define LANGUAGE 'DE'               //either 'DE' for German or 'EN' for English
 
-#define sleepTimeMin (1)            //setting of deepsleep time in minutes (pause between reads)
+#define TEMP_CORR (-1)              //Manual correction of temp sensor (mine reads 1 degree too high)
+#define ELEVATION (505)             //Enter your elevation in m ASL to calculate rel pressure (ASL/QNH) at your place
+
+#define sleepTimeMin (10)           //setting of deepsleep time in minutes (default: 10)
+
+// NTP
+#define NTP_SERVER      "ch.pool.ntp.org"
+#define TZ              1           // (utc+) TZ in hours
+#define DST_MN          60          // use 60mn for summer time in some countries
+
+#define TZ_SEC          ((TZ)*3600)
+#define DST_SEC         ((DST_MN)*60)
 
 /**********Blynk & ThingSpeak assginments ---------------------------------
 
@@ -37,6 +49,9 @@ virtual pin 3 Relative Pressure (hPa)
 virtual pin 4 Battery Volts (V)
 virtual pin 5 Dewpoint (Celcius)
 virtual pin 6 HeatIndex (Celsius)
+virtual pin 7 Zambrettis Words
+virtual pin 8 Accuracy in perceNT (%)
+virtual pin 9 Tend in Words
 
 ThingSpeak:
 
