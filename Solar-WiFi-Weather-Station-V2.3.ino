@@ -125,9 +125,6 @@ void setup() {
 
   // **************Application going online**********************************
   
-  if (App1 == "BLYNK") {        // for posting datas to Blynk App
-    Blynk.begin(auth, ssid, pass);
-  } 
   if (App2 == "Thingspeak")     // for posting data to Thingspeak website
   {
     WiFi.hostname("SolarWeatherStation"); //This changes the hostname of the ESP8266 to display neatly on the network esp on router.
@@ -146,6 +143,9 @@ void setup() {
     }
     Serial.println(" Wifi connected ok"); 
   }
+  if (App1 == "BLYNK") {        // for posting datas to Blynk App
+    Blynk.begin(auth, ssid, pass);
+  } 
   
   //*****************Checking if SPIFFS available********************************
 
