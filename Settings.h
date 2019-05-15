@@ -50,7 +50,7 @@ virtual pin 4 Battery Volts (V)
 virtual pin 5 Dewpoint (Celcius)
 virtual pin 6 HeatIndex (Celsius)
 virtual pin 7 Zambrettis Words
-virtual pin 8 Accuracy in perceNT (%)
+virtual pin 8 Accuracy in percent (%)
 virtual pin 9 Tend in Words
 
 ThingSpeak:
