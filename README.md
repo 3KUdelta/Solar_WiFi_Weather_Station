@@ -1,4 +1,4 @@
-# Solar_WiFi_Weather_Station including Zambretti Forecaster
+# Zambretti Forecaster on Solar WiFi Weather Station
 Based on the work of Open Green Energy.
 https://www.instructables.com/id/Solar-Powered-WiFi-Weather-Station-V20/
 Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, gentlemen!
