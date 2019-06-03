@@ -1,7 +1,7 @@
 
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.3
-  Features: temperature, dewpoint, heat index, humidity, absolute pressure, relative pressure, battery status and
+  Project Name : Solar Powered WiFi Weather Station V2.31
+  Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com
@@ -49,12 +49,17 @@
   Hardware Settings Mac: 
   LOLIN(WEMOS) D1 mini Pro, 80 MHz, Flash, 16M (14M SPIFFS), v2 Lower Memory, Disable, None, Only Sketch, 921600 on /dev/cu.SLAB_USBtoUART
 
-  Last updated on 15/05/2019
+  major update on 15/05/2019
 
   -added Zambretti Forecster
   -added translation feature
   -added English language
   -added German language
+
+  last updated on 03/06/2019
+
+  -added Dewpoint Spread
+  -minor code corrections
 
 ////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
                                                                                                                          
@@ -96,11 +101,12 @@ EasyNTPClient ntpClient(udp, NTP_SERVER, TZ_SEC + DST_SEC);
 float measured_temp;
 float measured_humi;
 float measured_pres;
-float SLpressure_hPa;             //needed for rel pressure calculation
-float HeatIndex;                  //Heat Index in °C
+float SLpressure_hPa;               // needed for rel pressure calculation
+float HeatIndex;                    // Heat Index in °C
 float volt;
 int rel_pressure_rounded;
 double DewpointTemperature;
+float DewPointSpread;               // Difference between actual temperature and dewpoint
 
 // FORECAST CALCULATION
 unsigned long current_timestamp;    // Actual timestamp read from NTPtime_t now;
@@ -121,29 +127,27 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Start of SolarWiFiWeatherStation V2.2");
+  Serial.println("Start of SolarWiFiWeatherStation V2.31");
 
   // **************Application going online**********************************
   
-  if (App2 == "Thingspeak")     // for posting data to Thingspeak website
-  {
-    WiFi.hostname("SolarWeatherStation"); //This changes the hostname of the ESP8266 to display neatly on the network esp on router.
-    WiFi.begin(ssid, pass);
-    Serial.print("---> Connecting to WiFi ");
-    int i = 0;
-    while (WiFi.status() != WL_CONNECTED) {
-      delay(500);
-      i++;
-      if (i > 20) {
-        Serial.println("Could not connect to WiFi!");
-        Serial.println("Doing a reset now and retry a connection from scratch.");
-        resetFunc();
-      }  
-    Serial.print(".");
-    }
-    Serial.println(" Wifi connected ok"); 
+  WiFi.hostname("SolarWeatherStation"); //This changes the hostname of the ESP8266 to display neatly on the network esp on router.
+  WiFi.begin(ssid, pass);
+  Serial.print("---> Connecting to WiFi ");
+  int i = 0;
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    i++;
+    if (i > 20) {
+      Serial.println("Could not connect to WiFi!");
+      Serial.println("Doing a reset now and retry a connection from scratch.");
+      resetFunc();
+    }  
+  Serial.print(".");
   }
-  if (App1 == "BLYNK") {        // for posting datas to Blynk App
+  Serial.println(" Wifi connected ok"); 
+    
+  if (App1 == "BLYNK") {        // for posting data to Blynk App
     Blynk.begin(auth, ssid, pass);
   } 
   
@@ -162,11 +166,11 @@ void setup() {
   //******** GETTING THE TIME FROM NTP SERVER  ***********************************
   
   Serial.println("---> Now reading time from NTP Server");
-  int i = 0;
+  int ii = 0;
   while(!ntpClient.getUnixTime()){
     delay(100); 
-    i++;
-    if (i > 20) {
+    ii++;
+    if (ii > 20) {
       Serial.println("Could not connect to NTP Server!");
       Serial.println("Doing a reset now and retry a connection from scratch.");
       resetFunc();
@@ -273,6 +277,7 @@ void setup() {
     Blynk.virtualWrite(7, ZambrettisWords);          // virtual pin 7
     Blynk.virtualWrite(8, accuracy_in_percent);      // virtual pin 8
     Blynk.virtualWrite(9, trend_in_words);           // virtual pin 9
+    Blynk.virtualWrite(10,DewPointSpread);           // virtual pin 10
     Serial.println("Data written to Blink ...");
   } 
  //*******************************************************************************
@@ -321,7 +326,7 @@ void loop() {                //loop is not used
 void measurementEvent() { 
     
   //Measures absolute Pressure, Temperature, Humidity, Voltage, calculate relative pressure, 
-  //Dewpoint, Heat Index
+  //Dewpoint, Dewpoint Spread, Heat Index
   
   bme.takeForcedMeasurement();
 
@@ -362,6 +367,13 @@ void measurementEvent() {
   DewpointTemperature = (b * tempcalc) / (a - tempcalc);
   Serial.print("Dewpoint: ");
   Serial.print(DewpointTemperature);
+  Serial.println("°C; ");
+
+  // Calculate dewpoint spread (difference between actual temp and dewpoint -> the smaller the number: rain or fog
+
+  DewPointSpread = measured_temp - DewpointTemperature;
+  Serial.print("Dewpoint Spread: ");
+  Serial.print(DewPointSpread);
   Serial.println("°C; ");
 
   // Calculate HI (heatindex in °C) --> HI starts working above 26,7 °C
