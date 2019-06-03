@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.3
-  Features: temperature, dewpoint, heat index, humidity, absolute pressure, relative pressure, battery status and
+  Project Name : Solar Powered WiFi Weather Station V2.31
+  Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com
