@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.3
-  Features: temperature, dewpoint, heat index, humidity, absolute pressure, relative pressure, battery status and
+  Project Name : Solar Powered WiFi Weather Station V2.31
+  Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com
@@ -35,23 +35,24 @@ const char* api_key = "your Thingspeak API key";         // API write key
 #define TZ              1           // (utc+) TZ in hours
 #define DST_MN          60          // use 60mn for summer time in some countries
 
-#define TZ_SEC          ((TZ)*3600)
-#define DST_SEC         ((DST_MN)*60)
+#define TZ_SEC          ((TZ)*3600)  // don't change this
+#define DST_SEC         ((DST_MN)*60)// don't change this
 
 /**********Blynk & ThingSpeak assginments ---------------------------------
 
 Blynk:
 
-virtual pin 0 Temperature (Celsius)
+virtual pin 0 Temperature (Celcius)
 virtual pin 1 Humidity (%)
 virtual pin 2 Absolute Pressure (hPa)
 virtual pin 3 Relative Pressure (hPa)
 virtual pin 4 Battery Volts (V)
 virtual pin 5 Dewpoint (Celcius)
-virtual pin 6 HeatIndex (Celsius)
+virtual pin 6 HeatIndex (Celcius)
 virtual pin 7 Zambrettis Words
 virtual pin 8 Accuracy in percent (%)
 virtual pin 9 Tend in Words
+virtual pin 10 Dewpoint Spread
 
 ThingSpeak:
 
