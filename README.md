@@ -15,6 +15,10 @@ Changes in V2.3
 - added English language
 - added German language
 
+Changes in V2.31
+- added Dewpoint Spread
+- fixed some minor things
+
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
