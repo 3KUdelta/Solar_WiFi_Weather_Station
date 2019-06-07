@@ -26,5 +26,8 @@ Print the box yourself: https://www.thingiverse.com/thing:3551386
 Blynk Example (here: German version):
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2997.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
+Blynk project settings:
+[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_3036.JPG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
+
 ThinkSpeak Example (ThingView iOS):
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2617B43DD8C8-1.jpeg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
