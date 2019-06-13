@@ -27,7 +27,7 @@
   <Adafruit_Sensor.h>    --> Adafruit unified sensor
   <Adafruit_BME280.h>    --> Adafrout BME280 sensor
   <BlynkSimpleEsp8266.h> --> https://github.com/blynkkk/blynk-library
-  <ESPWiFi.h>
+  <ESP8266WiFi.h>
   <WiFiUdp.h>
   "FS.h"
   <EasyNTPClient.h>      --> https://github.com/aharshac/EasyNTPClient
@@ -88,7 +88,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <BlynkSimpleEsp8266.h>  //https://github.com/blynkkk/blynk-library
-#include <ESPWiFi.h>
+#include <ESP8266WiFi.h>
 #include <WiFiUdp.h>
 #include "FS.h"
 #include <EasyNTPClient.h>       //https://github.com/aharshac/EasyNTPClient
