@@ -7,8 +7,8 @@
 
 ******* configuration control constant for use of Blynk and/or Thingspeak ***/
 
-const String App1 = "BLYNK";         //  disable if not applicable
-const String App2 = "Thingspeak";    //  disable if not applicable
+const String App1 = "BLYNK";         // empty string if not applicable -> "" else "BLYNK"
+const String App2 = "THINGSPEAK";    // empty string if not applicable -> "" else "THINGSPEAK"
 
 
 /****** Blink or ThingSpeak Settings ****************************************/
