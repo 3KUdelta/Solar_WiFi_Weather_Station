@@ -61,7 +61,7 @@
   -added Dewpoint Spread
   -minor code corrections
 
-  last updated 16/06/19
+  last updated 28/06/19
 
   -added MQTT (publishing all data to MQTT)
 
