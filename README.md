@@ -6,7 +6,7 @@ Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, 
 Major changes:
 - simplified, restructured code (used Adafruit libraries for BME280 instead, sorry for this Keith)
 - added relative pressure, dewpoint, dewpoint spread and heatindex calculations
-- allow both, Blynk and ThingSpeak API together
+- allow Blynk, ThingSpeak and MQTT data transmission
 - redesigned box (simplified printing, less plastic usage, full snap-in)
 
 Changes in V2.3
@@ -19,7 +19,7 @@ Changes in V2.31
 - added Dewpoint Spread
 - fixed some minor things
 
-Changes in V2.31 MQTT
+Changes in V2.31 (MQTT version)
 - allows to publish data to MQTT broker (alternative .ino file)
 
 Print the box yourself: https://www.thingiverse.com/thing:3551386
