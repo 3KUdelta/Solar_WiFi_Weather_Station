@@ -19,6 +19,9 @@ Changes in V2.31
 - added Dewpoint Spread
 - fixed some minor things
 
+Changes in V2.31 MQTT
+- allows to publish data to MQTT broker (alternative .ino file)
+
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
