@@ -32,5 +32,8 @@ Blynk Example (here: German version):
 Blynk project settings. Get Blynk in AppStore or GooglePlay and scan QR Code. You might need to purchase Blynk energy to load full project.
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_3036.JPG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
+Node-Red example showing MQTT messages on dashboard.
+[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/Node-Red-Dasboard.png)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
+
 ThinkSpeak Example (ThingView iOS):
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2617B43DD8C8-1.jpeg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
