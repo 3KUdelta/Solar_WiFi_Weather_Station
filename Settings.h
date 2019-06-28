@@ -21,6 +21,11 @@ char pass[] = "your Password";             // WiFi Router password
 const char* server = "api.thingspeak.com";        // Thingspeak Write API
 const char* api_key = "your Thingspeak API key";         // API write key 
 
+/****** MQTT Settings ********************************************************/
+
+const char* mqtt_server = "192.xxx.xxx.xxx";      // MQTT Server (broker) address
+
+
 /****** Additional Settings **************************************************/
 
 #define LANGUAGE 'DE'               //either 'DE' for German or 'EN' for English
