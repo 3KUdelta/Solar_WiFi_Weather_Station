@@ -284,7 +284,7 @@ void setup() {
  //*******************************************************************************
  // code block for uploading data to Thingspeak website
  
-  if (App2 == "Thingspeak") {
+  if (App2 == "THINGSPEAK") {
   // Send data to ThingSpeak 
     WiFiClient client;  
     if (client.connect(server,80)) {
