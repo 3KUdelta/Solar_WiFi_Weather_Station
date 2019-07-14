@@ -35,7 +35,10 @@ const char* mqtt_server = "192.xxx.xxx.xxx";      // MQTT Server (broker) addres
 
 #define sleepTimeMin (10)           //setting of deepsleep time in minutes (default: 10)
 
-// NTP
+// NTP   --> Just a remark - the program needs the time only for the timestamp, so for the Zambretti forecast
+//           the timezone and the DST (Daylight Saving Time) is irrelevant. This is why I did not take care of DST 
+//           in the code. I saw a fork on Github (truckershitch) which I believe has covered this.
+
 #define NTP_SERVER      "ch.pool.ntp.org"
 #define TZ              1           // (utc+) TZ in hours
 #define DST_MN          60          // use 60mn for summer time in some countries
