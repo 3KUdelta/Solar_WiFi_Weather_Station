@@ -385,7 +385,7 @@ void setup() {
   char _HeatIndex[8];                                // Buffer big enough for 7-character float
   dtostrf(HeatIndex, 3, 1, _HeatIndex);               // Leave room for too large numbers!
 
-  client.publish("home/weather//solarweatherstation/heatindexc", _HeatIndex, 1);      // ,1 = retained
+  client.publish("home/weather/solarweatherstation/heatindexc", _HeatIndex, 1);      // ,1 = retained
   delay(50);
   client.publish("home/debug", "SolarWeatherstation: Just published heatindex to home/weather//solarweatherstation/heatindexc");  
   delay(50); 
