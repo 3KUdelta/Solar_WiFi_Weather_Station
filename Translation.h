@@ -80,4 +80,42 @@
   const char TEXT_ZAMBRETTI_Y[]       = "Stürmisch, verbessert sich wahrscheinlich";
   const char TEXT_ZAMBRETTI_Z[]       = "Stürmisch, viel Regen";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Im Moment keine Prognose möglich";
+
+#elif LANGUAGE == 'IT'
+  const char TEXT_RISING_FAST[]       = "in rapido aumento";
+  const char TEXT_RISING[]            = "in aumento";
+  const char TEXT_RISING_SLOW[]       = "in lento aumento";
+  const char TEXT_STEADY[]            = "stabile";
+  const char TEXT_FALLING_SLOW[]      = "in lenta discesa";
+  const char TEXT_FALLING[]           = "in discesa";
+  const char TEXT_FALLING_FAST[]      = "in rapida discesa";
+
+  const char TEXT_ZAMBRETTI_A[]       = "Bel tempo stabile";
+  const char TEXT_ZAMBRETTI_B[]       = "Bel tempo";
+  const char TEXT_ZAMBRETTI_C[]       = "In miglioramento";
+  const char TEXT_ZAMBRETTI_D[]       = "Bel tempo con possibile peggioramento";
+  const char TEXT_ZAMBRETTI_E[]       = "Bel tempo con possibili rovesci";
+  const char TEXT_ZAMBRETTI_F[]       = "Tempo abbastanza buono, in miglioramento";
+  const char TEXT_ZAMBRETTI_G[]       = "Tempo abbastanza buono ma con possibili piogge a breve";
+  const char TEXT_ZAMBRETTI_H[]       = "Tempo abbastanza buono ma con piogge a breve";
+  const char TEXT_ZAMBRETTI_I[]       = "Piogge a breve ma in miglioramento";
+  const char TEXT_ZAMBRETTI_J[]       = "Variabile";
+  const char TEXT_ZAMBRETTI_K[]       = "Tempo abbastanza buono con probabili piogge";
+  const char TEXT_ZAMBRETTI_L[]       = "Tempo incerto con schiarite a breve";
+  const char TEXT_ZAMBRETTI_M[]       = "Tempo incerto con probabili miglioramenti";
+  const char TEXT_ZAMBRETTI_N[]       = "Piovoso con schiarite ad intervalli";
+  const char TEXT_ZAMBRETTI_O[]       = "Uggioso ed incerto";
+  const char TEXT_ZAMBRETTI_P[]       = "Variabile con rovesci di piogge";
+  const char TEXT_ZAMBRETTI_Q[]       = "Incerto con brevi intervalli di bel tempo";
+  const char TEXT_ZAMBRETTI_R[]       = "Incerto con possibili rovesci a breve";
+  const char TEXT_ZAMBRETTI_S[]       = "Incerto con piaggia a tratti";
+  const char TEXT_ZAMBRETTI_T[]       = "Molto incerto con sprazzi di bel tempo";
+  const char TEXT_ZAMBRETTI_U[]       = "Pioggia a tratti in peggioramento";
+  const char TEXT_ZAMBRETTI_V[]       = "Pioggia a tratti con forte instabilità";
+  const char TEXT_ZAMBRETTI_W[]       = "Pioggia a intervalli frequenti";
+  const char TEXT_ZAMBRETTI_X[]       = "Molto instabile, Pioggia";
+  const char TEXT_ZAMBRETTI_Y[]       = "Tempestoso con possibili miglioramenti";
+  const char TEXT_ZAMBRETTI_Z[]       = "Tempestoso e moto piovoso";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Mi dispiace, nessuna previsione disponibile al momento";
+
 #endif
