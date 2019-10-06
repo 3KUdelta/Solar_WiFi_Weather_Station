@@ -341,6 +341,7 @@ void measurementEvent() {
  
   // Get humidity
   measured_humi = bme.readHumidity();
+  measured_humi = measured_humi + HUMI_CORR;
   // print on serial monitor
   Serial.print("Humidity: ");
   Serial.print(measured_humi);
