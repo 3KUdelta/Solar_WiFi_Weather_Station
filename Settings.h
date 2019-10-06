@@ -31,6 +31,8 @@ const char* mqtt_server = "192.xxx.xxx.xxx";      // MQTT Server (broker) addres
 #define LANGUAGE 'DE'               //either 'DE' for German or 'EN' for English
 
 #define TEMP_CORR (-1)              //Manual correction of temp sensor (mine reads 1 degree too high)
+#define HUMI_CORR (+4)               // Changing temperature -1 equals humidity +4 (average, not precise but good enough for me)
+
 #define ELEVATION (505)             //Enter your elevation in m ASL to calculate rel pressure (ASL/QNH) at your place
 
 #define sleepTimeMin (10)           //setting of deepsleep time in minutes (default: 10)
