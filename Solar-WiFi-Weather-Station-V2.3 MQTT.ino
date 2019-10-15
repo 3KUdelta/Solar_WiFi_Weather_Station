@@ -453,6 +453,7 @@ void measurementEvent() {
   // Get humidity
   measured_humi = bme.readHumidity();
   measured_humi = measured_humi + HUMI_CORR;
+  if (measured_humi > 100) measured_humi = 100;    // the HUMI_CORR might lead in a value higher than 100%
   // print on serial monitor
   Serial.print("Humidity: ");
   Serial.print(measured_humi);
