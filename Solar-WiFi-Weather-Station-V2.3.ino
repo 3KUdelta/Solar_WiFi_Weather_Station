@@ -3,7 +3,7 @@
   Project Name : Solar Powered WiFi Weather Station V2.31
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
-  Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
+  Authors: Keith Hungerford, Debasish Dutta and Marc Stähli 
   Website : www.opengreenenergy.com
   
   Main microcontroller (ESP8266) and BME280 both sleep between measurements
@@ -56,10 +56,14 @@
   -added English language
   -added German language
 
-  last updated on 03/06/2019
+  updated on 03/06/2019
 
   -added Dewpoint Spread
   -minor code corrections
+  
+  updated on 15/10/2019
+  
+  - added correction factor to humidity
   
 
 ////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
