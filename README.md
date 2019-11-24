@@ -8,17 +8,20 @@ Major changes:
 - added relative pressure, dewpoint, dewpoint spread and heatindex calculations
 - allow Blynk, ThingSpeak and MQTT data transmission
 - redesigned box (simplified printing, less plastic usage, full snap-in)
+- available languages
+  - English
+  - German
+  - Italian (Chak10)
+  - Polish (TomaszDom)
 
 Changes in V2.3
 - included famous Zambretti forecaster (see Blynk example)
 - added translation table for Zambretti forecast
-- added English language
-- added German language
+- added multi language feature
 
 Changes in V2.31
 - added Dewpoint Spread
 - fixed some minor things
-- added Italian language (thank you, Chak10)
 
 Changes in V2.31 (MQTT version)
 - allows to publish data to MQTT broker (alternative .ino file)
