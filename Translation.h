@@ -118,4 +118,42 @@
   const char TEXT_ZAMBRETTI_Z[]       = "Tempestoso e moto piovoso";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Mi dispiace, nessuna previsione disponibile al momento";
 
+#elif LANGUAGE == 'PL'
+  const char TEXT_RISING_FAST[]       = "szybko rośnie";
+  const char TEXT_RISING[]            = "rośnie";
+  const char TEXT_RISING_SLOW[]       = "powoli rośnie";
+  const char TEXT_STEADY[]            = "stałe";
+  const char TEXT_FALLING_SLOW[]      = "powoli spada";
+  const char TEXT_FALLING[]           = "spada";
+  const char TEXT_FALLING_FAST[]      = "szybko spada";
+
+  const char TEXT_ZAMBRETTI_A[]       = "Dobra pogoda, stabilna";
+  const char TEXT_ZAMBRETTI_B[]       = "Dobra pogoda";
+  const char TEXT_ZAMBRETTI_C[]       = "Poprawia się";
+  const char TEXT_ZAMBRETTI_D[]       = "Dobra, pogarsza się";
+  const char TEXT_ZAMBRETTI_E[]       = "Dobra, możliwy deszcz";
+  const char TEXT_ZAMBRETTI_F[]       = "Całkiem dobra, polepsza się";
+  const char TEXT_ZAMBRETTI_G[]       = "Całkiem dobra, wkrótce możliwe deszcze";
+  const char TEXT_ZAMBRETTI_H[]       = "Całkiem dobra, później deszcze";
+  const char TEXT_ZAMBRETTI_I[]       = "Wkrótce deszczowo, polepsza się";
+  const char TEXT_ZAMBRETTI_J[]       = "Zmienna, polepsza się";
+  const char TEXT_ZAMBRETTI_K[]       = "Całkiem dobra, możliwe deszcze";
+  const char TEXT_ZAMBRETTI_L[]       = "Raczej niepewna, później rozpogodzi się";
+  const char TEXT_ZAMBRETTI_M[]       = "Niepewna, możliwe rozpogodzenia";
+  const char TEXT_ZAMBRETTI_N[]       = "Deszcze z przejaśnieniami";
+  const char TEXT_ZAMBRETTI_O[]       = "Deszczowo, staje się niepewna";
+  const char TEXT_ZAMBRETTI_P[]       = "Zmienna, niewielkie opady";
+  const char TEXT_ZAMBRETTI_Q[]       = "Niepewna, krótkie przejaśnienia";
+  const char TEXT_ZAMBRETTI_R[]       = "Niepewna, później deszcz";
+  const char TEXT_ZAMBRETTI_S[]       = "Niepewna, okresowe opady";
+  const char TEXT_ZAMBRETTI_T[]       = "Bardzo niepewna, z przejaśnieniami";
+  const char TEXT_ZAMBRETTI_U[]       = "Okresowe opady, później się pogorszy";
+  const char TEXT_ZAMBRETTI_V[]       = "Okresowe opady, staje się bardzo niepewna";
+  const char TEXT_ZAMBRETTI_W[]       = "Częste opady";
+  const char TEXT_ZAMBRETTI_X[]       = "Bardzo niepewna, deszcz";
+  const char TEXT_ZAMBRETTI_Y[]       = "Burzowa, możliwe polepszenie";
+  const char TEXT_ZAMBRETTI_Z[]       = "Burzowa, duże opady deszczu";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Obecnie brak prognozy";
+
+
 #endif
