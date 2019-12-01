@@ -8,6 +8,7 @@
 ******* Transaltion tables ****************************************/
 
 #if LANGUAGE == 'EN'
+  const char TEXT_AIR_PRESSURE[]      = "Pressure";
   const char TEXT_RISING_FAST[]       = "rising fast";
   const char TEXT_RISING[]            = "rising";
   const char TEXT_RISING_SLOW[]       = "rising slow";
@@ -15,7 +16,9 @@
   const char TEXT_FALLING_SLOW[]      = "falling slow";
   const char TEXT_FALLING[]           = "falling";
   const char TEXT_FALLING_FAST[]      = "falling fast";
-
+  
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Forecast";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Prediction accuracy";
   const char TEXT_ZAMBRETTI_A[]       = "Settled Fine Weather";
   const char TEXT_ZAMBRETTI_B[]       = "Fine Weather";
   const char TEXT_ZAMBRETTI_C[]       = "Becoming Fine";
@@ -45,6 +48,7 @@
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Sorry, no forecast for the moment";
 
 #elif LANGUAGE == 'DE'
+  const char TEXT_AIR_PRESSURE[]      = "Luftdruck";
   const char TEXT_RISING_FAST[]       = "rasch steigend";
   const char TEXT_RISING[]            = "steigend";
   const char TEXT_RISING_SLOW[]       = "langsam steigend";
@@ -52,7 +56,9 @@
   const char TEXT_FALLING_SLOW[]      = "langsam fallend";
   const char TEXT_FALLING[]           = "fallend";
   const char TEXT_FALLING_FAST[]      = "rasch fallend";
-
+  
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Wettervorhersage";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Vorhersagegenauigkeit";
   const char TEXT_ZAMBRETTI_A[]       = "Beständiges Schönwetter";
   const char TEXT_ZAMBRETTI_B[]       = "Schönes Wetter";
   const char TEXT_ZAMBRETTI_C[]       = "Wetter wird gut";
@@ -82,6 +88,7 @@
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Im Moment keine Prognose möglich";
 
 #elif LANGUAGE == 'IT'
+  const char TEXT_AIR_PRESSURE[]      = "Pressione atmosferica";
   const char TEXT_RISING_FAST[]       = "in rapido aumento";
   const char TEXT_RISING[]            = "in aumento";
   const char TEXT_RISING_SLOW[]       = "in lento aumento";
@@ -90,6 +97,9 @@
   const char TEXT_FALLING[]           = "in discesa";
   const char TEXT_FALLING_FAST[]      = "in rapida discesa";
 
+
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Previsioni meteo";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Precisione";
   const char TEXT_ZAMBRETTI_A[]       = "Bel tempo stabile";
   const char TEXT_ZAMBRETTI_B[]       = "Bel tempo";
   const char TEXT_ZAMBRETTI_C[]       = "In miglioramento";
@@ -119,6 +129,7 @@
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Mi dispiace, nessuna previsione disponibile al momento";
 
 #elif LANGUAGE == 'PL'
+  const char TEXT_AIR_PRESSURE[]      = "Ciśnienie";
   const char TEXT_RISING_FAST[]       = "szybko rośnie";
   const char TEXT_RISING[]            = "rośnie";
   const char TEXT_RISING_SLOW[]       = "powoli rośnie";
@@ -127,6 +138,8 @@
   const char TEXT_FALLING[]           = "spada";
   const char TEXT_FALLING_FAST[]      = "szybko spada";
 
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Prognoza";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Dokładność";
   const char TEXT_ZAMBRETTI_A[]       = "Dobra pogoda, stabilna";
   const char TEXT_ZAMBRETTI_B[]       = "Dobra pogoda";
   const char TEXT_ZAMBRETTI_C[]       = "Poprawia się";
@@ -154,6 +167,5 @@
   const char TEXT_ZAMBRETTI_Y[]       = "Burzowa, możliwe polepszenie";
   const char TEXT_ZAMBRETTI_Z[]       = "Burzowa, duże opady deszczu";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Obecnie brak prognozy";
-
 
 #endif

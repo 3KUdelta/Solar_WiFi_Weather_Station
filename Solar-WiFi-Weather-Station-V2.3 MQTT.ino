@@ -126,6 +126,9 @@ float pressure_difference[12];      // Array to calculate trend with pressure di
 int accuracy;                       // Counter, if enough values for accurate forecasting
 String ZambrettisWords;             // Final statement about weather forecast
 String trend_in_words;              // Trend in words
+String forecast_in_words;           // Weather forecast in words
+String pressure_in_words;           // Air pressure in words
+String accuracy_in_words;           // Zambretti's prediction accuracy in words
 
 void(* resetFunc) (void) = 0;       // declare reset function @ address 0
 
@@ -260,13 +263,19 @@ void setup() {
   int accuracy_in_percent = accuracy*94/12;            // 94% is the max predicion accuracy of Zambretti
 
   ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
+  forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
+  pressure_in_words = TEXT_AIR_PRESSURE;
+  accuracy_in_words = TEXT_ZAMBRETTI_ACCURACY;
   
   Serial.println("********************************************************");
-  Serial.print("Zambretti says: ");
-  Serial.print(ZambrettisWords);
-  Serial.print(", ");
+  Serial.print(forecast_in_words);
+  Serial.print(": ");
+  Serial.println(ZambrettisWords);
+  Serial.print(pressure_in_words);
+  Serial.print(": ");
   Serial.println(trend_in_words);
-  Serial.print("Prediction accuracy: ");
+  Serial.print(accuracy_in_words);
+  Serial.print(": ");
   Serial.print(accuracy_in_percent);
   Serial.println("%");
   if (accuracy < 12){
@@ -321,6 +330,8 @@ void setup() {
       postStr+=String(DewpointTemperature);  
       postStr+="&field7=";
       postStr+=String(HeatIndex);
+      postStr+="&status=";
+      postStr+=String(forecast_in_words + ": " + ZambrettisWords + ". " + pressure_in_words + " " + trend_in_words + ". " + accuracy_in_words + " " + accuracy_in_percent + "%25."); // Percentage sign needs to be URL-encoded
       postStr+=" HTTP/1.1\r\nHost: a.c.d\r\nConnection: close\r\n\r\n";
       postStr+="";
       client.print(postStr);
