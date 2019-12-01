@@ -22,6 +22,7 @@ Changes in V2.3
 Changes in V2.31
 - added Dewpoint Spread
 - fixed some minor things
+- added Zambretti forecast in Thingspeak (thank you ThomaszDom)
 
 Changes in V2.31 (MQTT version)
 - allows to publish data to MQTT broker (alternative .ino file)
