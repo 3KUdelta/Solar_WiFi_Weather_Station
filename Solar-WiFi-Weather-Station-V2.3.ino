@@ -1,9 +1,9 @@
 
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.31
+  Project Name : Solar Powered WiFi Weather Station V2.32
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
-  Authors: Keith Hungerford, Debasish Dutta and Marc Stähli 
+  Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com
   
   Main microcontroller (ESP8266) and BME280 both sleep between measurements
@@ -60,11 +60,12 @@
 
   -added Dewpoint Spread
   -minor code corrections
-  
-  updated on 15/10/2019
-  
-  - added correction factor to humidity
-  
+
+  updated 28/06/19
+  -added Italian and Polish tranlation (Chak10) and (TomaszDom)
+ 
+  Last updated 27/11/19 to V2.32
+  -added battery protection at 3.3V, sending "batt empty" message and go to hybernate mode
 
 ////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
                                                                                                                          
@@ -135,7 +136,18 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Start of SolarWiFiWeatherStation V2.31");
+  Serial.println("Start of SolarWiFiWeatherStation V2.32");
+
+  //******Battery Voltage Monitoring*********************************************
+  
+  // Voltage divider R1 = 220k+100k+220k =540k and R2=100k
+  float calib_factor = 5.28; // change this value to calibrate the battery voltage
+  unsigned long raw = analogRead(A0);
+  volt = raw * calib_factor/1024; 
+  
+  Serial.print( "Voltage = ");
+  Serial.print(volt, 2); // print with 2 decimal places
+  Serial.println (" V");
 
   // **************Application going online**********************************
   
@@ -148,9 +160,14 @@ void setup() {
     i++;
     if (i > 20) {
       Serial.println("Could not connect to WiFi!");
-      Serial.println("Doing a reset now and retry a connection from scratch.");
-      resetFunc();
-    }  
+      Serial.println("Going to sleep for 10 minutes and try again.");
+      if (volt > 3.3){
+        goToSleep(10);   // go to sleep and retry after 10 min
+      }  
+      else{
+        goToSleep(0);   // hybernate because batt empty
+      }
+    }
   Serial.print(".");
   }
   Serial.println(" Wifi connected ok"); 
@@ -251,12 +268,16 @@ void setup() {
 
 //**************************Calculate Zambretti Forecast*******************************************
   
-  int accuracy_in_percent = accuracy*94/12;            // 94% is the max predicion accuracy of Zambretti
-
-  ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
-  forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
-  pressure_in_words = TEXT_AIR_PRESSURE;
-  accuracy_in_words = TEXT_ZAMBRETTI_ACCURACY;
+  int accuracy_in_percent = accuracy * 94 / 12;        // 94% is the max predicion accuracy of Zambretti
+  if ( volt > 3.3 ) {                                  // check if batt is still ok
+    ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
+    forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
+    pressure_in_words = TEXT_AIR_PRESSURE;
+    accuracy_in_words = TEXT_ZAMBRETTI_ACCURACY;
+    }
+  else {
+    ZambrettisWords = ZambrettiSays('0');              // send Message that battery is empty
+  }
   
   Serial.println("********************************************************");
   Serial.print(forecast_in_words);
@@ -333,8 +354,12 @@ void setup() {
       Serial.print(line);
     }
   }
-  goToSleep();                //over and out
-  
+  if (volt > 3.3) {          //check if batt still ok, if yes
+    goToSleep(sleepTimeMin); //go for a nap
+  }
+  else{                      //if not,
+    goToSleep(0);            //hybernate because batt is empty
+  }
 } // end of void setup()
 
 void loop() {                //loop is not used
@@ -413,19 +438,6 @@ void measurementEvent() {
   Serial.print("HeatIndex: ");
   Serial.print(HeatIndex);
   Serial.print("°C; ");
-  
-  //******Battery Voltage Monitoring*********************************************
-  
-  // Voltage divider R1 = 220k+100k+220k =540k and R2=100k
-  float calib_factor = 5.28; // change this value to calibrate the battery voltage
-  unsigned long raw = analogRead(A0);
-  volt = raw * calib_factor/1024; 
-  
-  Serial.print( "Voltage = ");
-  Serial.print(volt, 2); // print with 2 decimal places
-  Serial.println (" V");
-  
- //*******************************************************************************
  
 } // end of void measurementEvent()
 
@@ -594,6 +606,7 @@ String ZambrettiSays(char code){
   case 'X': zambrettis_words = TEXT_ZAMBRETTI_X; break;
   case 'Y': zambrettis_words = TEXT_ZAMBRETTI_Y; break;
   case 'Z': zambrettis_words = TEXT_ZAMBRETTI_Z; break;
+  case '0': zambrettis_words = TEXT_ZAMBRETTI_0; break;
    default: zambrettis_words = TEXT_ZAMBRETTI_DEFAULT; break;
   }
   return zambrettis_words;
@@ -679,10 +692,19 @@ void FirstTimeRun(){
   resetFunc();                                              //call reset
 }
 
-void goToSleep() {
-  Serial.print ("Going to sleep now for ");
-  Serial.print (sleepTimeMin);
-  Serial.print (" Minute(s).");
+void goToSleep(unsigned int sleepmin) {
   
-  ESP.deepSleep(sleepTimeMin * 60 * 1000000); // convert to microseconds
-}
+  Serial.println("INFO: Closing the Wifi connection");
+  WiFi.disconnect();
+
+  while (client.connected() || (WiFi.status() == WL_CONNECTED)) {
+    Serial.println("Waiting for shutdown before sleeping");
+    delay(10);
+  }
+  delay(50);
+  
+  Serial.print ("Going to sleep now for ");
+  Serial.print (sleepmin);
+  Serial.print (" Minute(s).");
+  ESP.deepSleep(sleepmin * 60 * 1000000); // convert to microseconds
+} // end of goToSleep()
