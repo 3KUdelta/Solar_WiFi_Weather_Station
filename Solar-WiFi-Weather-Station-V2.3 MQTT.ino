@@ -1,6 +1,5 @@
-
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.31
+  Project Name : Solar Powered WiFi Weather Station V2.32
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
@@ -8,21 +7,18 @@
   
   Main microcontroller (ESP8266) and BME280 both sleep between measurements
   BME280 is used in single shot mode ("forced mode")
-
   CODE: https://github.com/3KUdelta/Solar_WiFi_Weather_Station
   INSTRUCTIONS & HARDWARE: https://www.instructables.com/id/Solar-Powered-WiFi-Weather-Station-V20/
   3D FILES: https://www.thingiverse.com/thing:3551386
-
-  CREDITS:
   
+  CREDITS:
   Inspiration and code fragments of Dewpoint and Heatindex calculations are taken from:  
   https://arduinotronics.blogspot.com/2013/12/temp-humidity-w-dew-point-calcualtions.html
-
   For Zambretti Ideas:
   http://drkfs.net/zambretti.htm
   https://raspberrypiandstuff.wordpress.com
   David Bird: https://github.com/G6EJD/ESP32_Weather_Forecaster_TN061
-
+  
   Needed libraries:
   <Adafruit_Sensor.h>    --> Adafruit unified sensor
   <Adafruit_BME280.h>    --> Adafrout BME280 sensor
@@ -32,9 +28,8 @@
   "FS.h"
   <EasyNTPClient.h>      --> https://github.com/aharshac/EasyNTPClient
   <TimeLib.h>            --> https://github.com/PaulStoffregen/Time.git
-
-  CREDITS for Adafruit libraries:
   
+  CREDITS for Adafruit libraries:
   This is a library for the BME280 humidity, temperature & pressure sensor
   Designed specifically to work with the Adafruit BME280 Breakout
   ----> http://www.adafruit.com/products/2650
@@ -48,36 +43,26 @@
   
   Hardware Settings Mac: 
   LOLIN(WEMOS) D1 mini Pro, 80 MHz, Flash, 16M (14M SPIFFS), v2 Lower Memory, Disable, None, Only Sketch, 921600 on /dev/cu.SLAB_USBtoUART
-
   major update on 15/05/2019
-
   -added Zambretti Forecster
   -added translation feature
   -added English language
   -added German language
-
   updated on 03/06/2019
-
   -added Dewpoint Spread
   -minor code corrections
-
-  last updated 28/06/19
-
+  updated 28/06/19
   -added MQTT (publishing all data to MQTT)
-
-
-////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
-                                                                                                                         
-// 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak
-
+  -added Italian and Polish tranlation (Chak10) and (TomaszDom)
+  Last updated 04/12/19 to V2.32
+  -added battery protection at 3.3V, sending "batt empty" message and go to hybernate mode
+  
+////  Features :  /////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                   
+// 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak and to any MQTT broker
 // 2. Monitoring Weather parameters like Temperature, Pressure abs, Pressure MSL and Humidity.
-
 // 3. Extra Ports to add more Weather Sensors like UV Index, Light and Rain Guage etc.
-
 // 4. Remote Battery Status Monitoring
-
 // 5. Using Sleep mode to reduce the energy consumed                                        
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /***************************************************
@@ -139,9 +124,20 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Start of SolarWiFiWeatherStation V2.31");
+  Serial.println("Start of SolarWiFiWeatherStation V2.32");
 
-  // **************Application going online**********************************
+  //******Battery Voltage Monitoring (first thing to do: is battery still ok?)***********
+  
+  // Voltage divider R1 = 220k+100k+220k =540k and R2=100k
+  float calib_factor = 5.28; // change this value to calibrate the battery voltage
+  unsigned long raw = analogRead(A0);
+  volt = raw * calib_factor/1024; 
+  
+  Serial.print( "Voltage = ");
+  Serial.print(volt, 2); // print with 2 decimal places
+  Serial.println (" V");
+
+  // **************Application going online**********************************************
   
   WiFi.hostname("SolarWeatherStation"); //This changes the hostname of the ESP8266 to display neatly on the network esp on router.
   WiFi.begin(ssid, pass);
@@ -152,9 +148,14 @@ void setup() {
     i++;
     if (i > 20) {
       Serial.println("Could not connect to WiFi!");
-      Serial.println("Doing a reset now and retry a connection from scratch.");
-      resetFunc();
-    }  
+      Serial.println("Going to sleep for 10 minutes and try again.");
+      if (volt > 3.3){
+        goToSleep(10);   // go to sleep and retry after 10 min
+      }  
+      else{
+        goToSleep(0);   // hybernate because batt empty - this is just to avoid that an endless
+      }                 // try to get a WiFi signal will drain the battery empty
+    }
   Serial.print(".");
   }
   Serial.println(" Wifi connected ok"); 
@@ -229,7 +230,7 @@ void setup() {
                 Adafruit_BME280::SAMPLING_X1, // humidity
                 Adafruit_BME280::FILTER_OFF   );
  
-  measurementEvent();            //get all data from the different sensors
+  measurementEvent();            //calling function to get all data from the different sensors
   
   //*******************SPIFFS operations***************************************************************
 
@@ -261,21 +262,22 @@ void setup() {
 //**************************Calculate Zambretti Forecast*******************************************
   
   int accuracy_in_percent = accuracy*94/12;            // 94% is the max predicion accuracy of Zambretti
-
-  ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
-  forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
-  pressure_in_words = TEXT_AIR_PRESSURE;
-  accuracy_in_words = TEXT_ZAMBRETTI_ACCURACY;
+  if ( volt > 3.3 ) {                       // check if batt is still ok
+    ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
+    forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
+    pressure_in_words = TEXT_AIR_PRESSURE;
+    accuracy_in_words = TEXT_ZAMBRETTI_ACCURACY;
+    }
+  else {
+    ZambrettisWords = ZambrettiSays('0');   // send Message that battery is empty
+  }
   
   Serial.println("********************************************************");
-  Serial.print(forecast_in_words);
-  Serial.print(": ");
-  Serial.println(ZambrettisWords);
-  Serial.print(pressure_in_words);
-  Serial.print(": ");
+  Serial.print("Zambretti says: ");
+  Serial.print(ZambrettisWords);
+  Serial.print(", ");
   Serial.println(trend_in_words);
-  Serial.print(accuracy_in_words);
-  Serial.print(": ");
+  Serial.print("Prediction accuracy: ");
   Serial.print(accuracy_in_percent);
   Serial.println("%");
   if (accuracy < 12){
@@ -300,7 +302,7 @@ void setup() {
     Blynk.virtualWrite(7, ZambrettisWords);          // virtual pin 7
     Blynk.virtualWrite(8, accuracy_in_percent);      // virtual pin 8
     Blynk.virtualWrite(9, trend_in_words);           // virtual pin 9
-    Blynk.virtualWrite(10,DewPointSpread);           // virtual pin 10
+    Blynk.virtualWrite(10, DewPointSpread);          // virtual pin 10
     Serial.println("Data written to Blink ...");
   } 
   
@@ -439,11 +441,15 @@ void setup() {
   client.publish("home/debug", "SolarWeatherstation: Just published trend to home/weather/solarweatherstation/trend");  
   delay(50);
 
-  goToSleep();                //over and out
-  
+  if (volt > 3.3) {          //check if batt still ok, if yes
+    goToSleep(sleepTimeMin); //go for a nap
+  }
+  else{                      //if not,
+    goToSleep(0);            //hybernate because batt is empty
+  }
 } // end of void setup()
 
-void loop() {                //loop is not used
+void loop() {               //loop is not used
 } // end of void loop()
 
 void measurementEvent() { 
@@ -519,19 +525,6 @@ void measurementEvent() {
   Serial.print("HeatIndex: ");
   Serial.print(HeatIndex);
   Serial.print("°C; ");
-  
-  //******Battery Voltage Monitoring*********************************************
-  
-  // Voltage divider R1 = 220k+100k+220k =540k and R2=100k
-  float calib_factor = 5.28; // change this value to calibrate the battery voltage
-  unsigned long raw = analogRead(A0);
-  volt = raw * calib_factor/1024; 
-  
-  Serial.print( "Voltage = ");
-  Serial.print(volt, 2); // print with 2 decimal places
-  Serial.println (" V");
-  
- //*******************************************************************************
  
 } // end of void measurementEvent()
 
@@ -700,6 +693,7 @@ String ZambrettiSays(char code){
   case 'X': zambrettis_words = TEXT_ZAMBRETTI_X; break;
   case 'Y': zambrettis_words = TEXT_ZAMBRETTI_Y; break;
   case 'Z': zambrettis_words = TEXT_ZAMBRETTI_Z; break;
+  case '0': zambrettis_words = TEXT_ZAMBRETTI_0; break;
    default: zambrettis_words = TEXT_ZAMBRETTI_DEFAULT; break;
   }
   return zambrettis_words;
@@ -785,29 +779,6 @@ void FirstTimeRun(){
   resetFunc();                                              //call reset
 }
 
-void go_online() {
-  WiFi.hostname("PoolMonitor");     // This changes the hostname of the ESP8266 to display neatly on the network esp on router.
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, pass);
-  Serial.print("---> Connecting to WiFi ");
-  int i = 0;
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    i++;
-    if (i > 20) {
-      Serial.println("Could not connect to WiFi!");
-      Serial.println("Doing a reset now and retry a connection from scratch.");
-      resetFunc();
-    }  
-    Serial.print(".");
-  }
-  Serial.print("Wifi connected ok. ");
-  Serial.println(WiFi.localIP());
-  Blynk.begin(auth, ssid, pass);    // connecting to Blynk Server
-  Serial.println("Blynk connected ok.");
-
-} //end go_online
-
 void connect_to_MQTT() {
   Serial.print("---> Connecting to MQTT, ");
   client.setServer(mqtt_server, 1883);
@@ -843,9 +814,9 @@ void reconnect() {
   }
 } //end void reconnect*/
 
-void goToSleep() {
+void goToSleep(unsigned int sleepmin) {
   char tmp[128];
-  String sleepmessage = "SolarWeatherstation: Taking a nap for " + String sleepTimeMin + " Minutes";
+  String sleepmessage = "SolarWeatherstation: Taking a nap for " + String (sleepmin) + " Minutes";
   sleepmessage.toCharArray(tmp, 128);
   client.publish("home/debug",tmp);
   delay(50);
@@ -863,7 +834,7 @@ void goToSleep() {
   delay(50);
   
   Serial.print ("Going to sleep now for ");
-  Serial.print (sleepTimeMin);
+  Serial.print (sleepmin);
   Serial.print (" Minute(s).");
-  ESP.deepSleep(sleepTimeMin * 60 * 1000000); // convert to microseconds
+  ESP.deepSleep(sleepmin * 60 * 1000000); // convert to microseconds
 } // end of goToSleep()
