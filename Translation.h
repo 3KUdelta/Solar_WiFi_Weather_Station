@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.31
+  Project Name : Solar Powered WiFi Weather Station V2.32
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
@@ -45,6 +45,7 @@
   const char TEXT_ZAMBRETTI_X[]       = "Very Unsettled, Rain";
   const char TEXT_ZAMBRETTI_Y[]       = "Stormy, possibly improving";
   const char TEXT_ZAMBRETTI_Z[]       = "Stormy, much rain";
+  const char TEXT_ZAMBRETTI_0[]       = "Battery empty, please recharge!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Sorry, no forecast for the moment";
 
 #elif LANGUAGE == 'DE'
@@ -85,6 +86,7 @@
   const char TEXT_ZAMBRETTI_X[]       = "Sehr veränderlich, Regen";
   const char TEXT_ZAMBRETTI_Y[]       = "Stürmisch, verbessert sich wahrscheinlich";
   const char TEXT_ZAMBRETTI_Z[]       = "Stürmisch, viel Regen";
+  const char TEXT_ZAMBRETTI_0[]       = "Batterie leer, bitte nachladen!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Im Moment keine Prognose möglich";
 
 #elif LANGUAGE == 'IT'
@@ -96,7 +98,6 @@
   const char TEXT_FALLING_SLOW[]      = "in lenta discesa";
   const char TEXT_FALLING[]           = "in discesa";
   const char TEXT_FALLING_FAST[]      = "in rapida discesa";
-
 
   const char TEXT_ZAMBRETTI_FORECAST[]= "Previsioni meteo";
   const char TEXT_ZAMBRETTI_ACCURACY[]= "Precisione";
@@ -126,6 +127,7 @@
   const char TEXT_ZAMBRETTI_X[]       = "Molto instabile, Pioggia";
   const char TEXT_ZAMBRETTI_Y[]       = "Tempestoso con possibili miglioramenti";
   const char TEXT_ZAMBRETTI_Z[]       = "Tempestoso e moto piovoso";
+  const char TEXT_ZAMBRETTI_0[]       = "Batteria scarica, si prega di ricaricare!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Mi dispiace, nessuna previsione disponibile al momento";
 
 #elif LANGUAGE == 'PL'
@@ -166,6 +168,7 @@
   const char TEXT_ZAMBRETTI_X[]       = "Bardzo niepewna, deszcz";
   const char TEXT_ZAMBRETTI_Y[]       = "Burzowa, możliwe polepszenie";
   const char TEXT_ZAMBRETTI_Z[]       = "Burzowa, duże opady deszczu";
+  const char TEXT_ZAMBRETTI_0[]       = "Bateria rozładowana, proszę naładować!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Obecnie brak prognozy";
 
 #endif
