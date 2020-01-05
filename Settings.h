@@ -75,12 +75,10 @@ Field 6: Dewpoint (Celcius)
 Field 7: HeatIndex (Celcius) 
 Status: Zambrettis Words + Trend in Words + Accuracy
 
-***************************************************************************/
-
-MQTT
+MQTT:
 
 home/weather/solarweatherstation/tempc
-home/weather//solarweatherstation/heatindexc
+home/weather/solarweatherstation/heatindexc
 home/weather/solarweatherstation/dewpointc
 home/weather/solarweatherstation/spreadc
 home/weather/solarweatherstation/abshpa
@@ -90,3 +88,5 @@ home/weather/solarweatherstation/battv
 home/weather/solarweatherstation/zambrettisays
 home/weather/solarweatherstation/trend
 home/weather/solarweatherstation/accuracy
+
+***************************************************************************/
