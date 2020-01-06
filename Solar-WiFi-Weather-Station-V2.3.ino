@@ -132,6 +132,8 @@ String accuracy_in_words;           // Zambretti's prediction accuracy in words
 
 void(* resetFunc) (void) = 0;       // declare reset function @ address 0
 
+WiFiClient client;
+
 void setup() {
   
   Serial.begin(115200);
