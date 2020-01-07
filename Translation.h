@@ -171,7 +171,7 @@
   const char TEXT_ZAMBRETTI_0[]       = "Bateria rozładowana, proszę naładować!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Obecnie brak prognozy";
 
-#if LANGUAGE == 'RO'
+#elif LANGUAGE == 'RO'
   const char TEXT_AIR_PRESSURE[]      = "Presiune";
   const char TEXT_RISING_FAST[]       = "crestere rapida";
   const char TEXT_RISING[]            = "crestere";
