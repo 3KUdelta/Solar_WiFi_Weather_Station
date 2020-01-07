@@ -171,4 +171,45 @@
   const char TEXT_ZAMBRETTI_0[]       = "Bateria rozładowana, proszę naładować!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Obecnie brak prognozy";
 
+#if LANGUAGE == 'RO'
+  const char TEXT_AIR_PRESSURE[]      = "Presiune";
+  const char TEXT_RISING_FAST[]       = "crestere rapida";
+  const char TEXT_RISING[]            = "crestere";
+  const char TEXT_RISING_SLOW[]       = "crestere usoara";
+  const char TEXT_STEADY[]            = "stabila";
+  const char TEXT_FALLING_SLOW[]      = "scadere usoara";
+  const char TEXT_FALLING[]           = "scadere";
+  const char TEXT_FALLING_FAST[]      = "scadere rapida";
+  
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Prognoza";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Acuratetea prognozei";
+  const char TEXT_ZAMBRETTI_A[]       = "Stabil Vreme buna";
+  const char TEXT_ZAMBRETTI_B[]       = "Vreme buna";
+  const char TEXT_ZAMBRETTI_C[]       = "Devine buna";
+  const char TEXT_ZAMBRETTI_D[]       = "Buna, devine instabila";
+  const char TEXT_ZAMBRETTI_E[]       = "Buna, posibile averse";
+  const char TEXT_ZAMBRETTI_F[]       = "Destul de buna, Se imbunatateste";
+  const char TEXT_ZAMBRETTI_G[]       = "Destul de buna, Posibile averse in curand";
+  const char TEXT_ZAMBRETTI_H[]       = "Destul de buna, Posibile averse mai tarziu";
+  const char TEXT_ZAMBRETTI_I[]       = "Averse in curand, Se imbunatateste";
+  const char TEXT_ZAMBRETTI_J[]       = "Schimbatoare Se imbunatateste";
+  const char TEXT_ZAMBRETTI_K[]       = "Destul de buna, Posibile averse";
+  const char TEXT_ZAMBRETTI_L[]       = "Mai degraba Instabil, se imbunatateste mai tarziu";
+  const char TEXT_ZAMBRETTI_M[]       = "Instabil, Probabil se imbunateste";
+  const char TEXT_ZAMBRETTI_N[]       = "Averse cu intervale senine";
+  const char TEXT_ZAMBRETTI_O[]       = "Averse, devine instabil";
+  const char TEXT_ZAMBRETTI_P[]       = "Schimbatoare ceva averse";
+  const char TEXT_ZAMBRETTI_Q[]       = "Instabil, scurte intervale mici";
+  const char TEXT_ZAMBRETTI_R[]       = "Instabil, Averse mai tarziu";
+  const char TEXT_ZAMBRETTI_S[]       = "Instabil, Averse uneori";
+  const char TEXT_ZAMBRETTI_T[]       = "Foarte instabil, intervale mici uneori";
+  const char TEXT_ZAMBRETTI_U[]       = "Ploaie uneori, mai tarziu se inrautateste";
+  const char TEXT_ZAMBRETTI_V[]       = "Ploaie uneori, devine foarte instabil";
+  const char TEXT_ZAMBRETTI_W[]       = "Ploaie la intervale frecvente";
+  const char TEXT_ZAMBRETTI_X[]       = "Foarte instabil, ploaie";
+  const char TEXT_ZAMBRETTI_Y[]       = "Furtuna, Posibil se imbunatateste";
+  const char TEXT_ZAMBRETTI_Z[]       = "Furtuna, multa ploaie";
+  const char TEXT_ZAMBRETTI_0[]       = "Baterie descarcata, te rog reincarca!";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Imi pare rau, nici o prognoza momentan";
+
 #endif
