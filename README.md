@@ -13,6 +13,7 @@ Major changes:
   - German
   - Italian (Chak10)
   - Polish (TomaszDom)
+  - Romanian (zangaby)
 
 Changes in V2.3
 - included famous Zambretti forecaster (see Blynk example)
