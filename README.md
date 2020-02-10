@@ -14,6 +14,7 @@ Major changes:
   - Italian (Chak10)
   - Polish (TomaszDom)
   - Romanian (zangaby)
+  - French (Ludestru)
 
 Changes in V2.3
 - included famous Zambretti forecaster (see Blynk example)
