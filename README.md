@@ -8,7 +8,7 @@ Major changes:
 - added relative pressure, dewpoint, dewpoint spread and heatindex calculations
 - allow Blynk, ThingSpeak and MQTT data transmission
 - redesigned box (simplified printing, less plastic usage, full snap-in)
-- available languages
+- available languages (a big thank you to the contributors!)
   - English
   - German
   - Italian (Chak10)
