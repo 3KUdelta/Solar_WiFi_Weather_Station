@@ -89,6 +89,47 @@
   const char TEXT_ZAMBRETTI_0[]       = "Batterie leer, bitte nachladen!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Im Moment keine Prognose möglich";
 
+#elif LANGUAGE == 'FR'
+  const char TEXT_AIR_PRESSURE[]      = "Pression";
+  const char TEXT_RISING_FAST[]       = "en hausse rapide";
+  const char TEXT_RISING[]            = "en hausse";
+  const char TEXT_RISING_SLOW[]       = "en faible hausse";
+  const char TEXT_STEADY[]            = "constante";
+  const char TEXT_FALLING_SLOW[]      = "en faible baisse";
+  const char TEXT_FALLING[]           = "en baisse";
+  const char TEXT_FALLING_FAST[]      = "en baisse rapide";
+  
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Prévisions";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Précision des prévisions";
+  const char TEXT_ZAMBRETTI_A[]       = "Beau temps installé";
+  const char TEXT_ZAMBRETTI_B[]       = "Beau temps";
+  const char TEXT_ZAMBRETTI_C[]       = "Amélioration de la météo";
+  const char TEXT_ZAMBRETTI_D[]       = "Beau temps, deviens changeant";
+  const char TEXT_ZAMBRETTI_E[]       = "Beau temps, Possibilité d'averses";
+  const char TEXT_ZAMBRETTI_F[]       = "Assez bon, en amélioration";
+  const char TEXT_ZAMBRETTI_G[]       = "Assez bon, des averses précoces sont possibles";
+  const char TEXT_ZAMBRETTI_H[]       = "Assez bon, des averses plus tard";
+  const char TEXT_ZAMBRETTI_I[]       = "Pluie précoce, amélioration";
+  const char TEXT_ZAMBRETTI_J[]       = "Changeant s'améliore";
+  const char TEXT_ZAMBRETTI_K[]       = "Assez bon, averses probables";
+  const char TEXT_ZAMBRETTI_L[]       = "Plutôt variable, s'éclaircira plus tard";
+  const char TEXT_ZAMBRETTI_M[]       = "Instable, probablement en amélioration";
+  const char TEXT_ZAMBRETTI_N[]       = "Pluie avec éclaircissement";
+  const char TEXT_ZAMBRETTI_O[]       = "Pluvieux, devient instable";
+  const char TEXT_ZAMBRETTI_P[]       = "Variable avec peu d'averses";
+  const char TEXT_ZAMBRETTI_Q[]       = "Instable, avec quelques intervalles de beau";
+  const char TEXT_ZAMBRETTI_R[]       = "Instable, averses plus tard";
+  const char TEXT_ZAMBRETTI_S[]       = "Instable, averses occasionnelles";
+  const char TEXT_ZAMBRETTI_T[]       = "Très Instable, parfois plus beau";
+  const char TEXT_ZAMBRETTI_U[]       = "Averses par moments, plus mauvais plus tard";
+  const char TEXT_ZAMBRETTI_V[]       = "Averses par moments, devient très instable";
+  const char TEXT_ZAMBRETTI_W[]       = "Averses à intervalles fréquents";
+  const char TEXT_ZAMBRETTI_X[]       = "Très instable, Pluie";
+  const char TEXT_ZAMBRETTI_Y[]       = "Orageux, possible amélioration";
+  const char TEXT_ZAMBRETTI_Z[]       = "Orageux, beaucoup de pluie";
+  const char TEXT_ZAMBRETTI_0[]       = "Batterie vide, veuillez recharger!";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Désolé, aucune prévision possible pour le moment";
+
 #elif LANGUAGE == 'IT'
   const char TEXT_AIR_PRESSURE[]      = "Pressione atmosferica";
   const char TEXT_RISING_FAST[]       = "in rapido aumento";
