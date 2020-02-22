@@ -40,7 +40,7 @@ Print the box yourself: https://www.thingiverse.com/thing:3551386
 Blynk Example (here: German version):
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2997.PNG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
-Blynk project settings. Get Blynk in AppStore or GooglePlay and scan QR Code. You might need to purchase Blynk energy to load full project.
+Blynk project settings. Get Blynk in AppStore or GooglePlay and scan QR Code. You might need to purchase Blynk energy to load full project. 3'600 Energy needed for Blynk.
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_3036.JPG)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
 Showing the data on a LED display: https://github.com/3KUdelta/MDparola_MQTT_monitor
