@@ -28,7 +28,7 @@ const char* mqtt_server = "192.xxx.xxx.xxx";      // MQTT Server (broker) addres
 
 /****** Additional Settings **************************************************/
 
-#define LANGUAGE 'DE'               //either 'DE' for German or 'EN' for English
+#define LANGUAGE 'DE'               //check translation.h for available languages. Currently EN/DE/FR/IT/PL/RO
 
 #define TEMP_CORR (-1)              //Manual correction of temp sensor (mine reads 1 degree too high)
 #define HUMI_CORR (+4)               // Changing temperature -1 equals humidity +4 (average, not precise but good enough for me)
