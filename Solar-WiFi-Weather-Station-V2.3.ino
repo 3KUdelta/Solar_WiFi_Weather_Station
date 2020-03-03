@@ -314,7 +314,7 @@ void setup() {
     Blynk.virtualWrite(7, ZambrettisWords);          // virtual pin 7
     Blynk.virtualWrite(8, accuracy_in_percent);      // virtual pin 8
     Blynk.virtualWrite(9, trend_in_words);           // virtual pin 9
-    Blynk.virtualWrite(10,DewPointSpread);           // virtual pin 10
+    Blynk.virtualWrite(10, DewPointSpread);          // virtual pin 10
     Serial.println("Data written to Blink ...");
   }
 
