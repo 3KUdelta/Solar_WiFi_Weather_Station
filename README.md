@@ -15,6 +15,7 @@ Major changes:
   - Polish (TomaszDom)
   - Romanian (zangaby)
   - French (Ludestru)
+  - Spanish (Fedecutt)
 
 Changes in V2.3
 - included famous Zambretti forecaster (see Blynk example)
