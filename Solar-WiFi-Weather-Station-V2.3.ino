@@ -19,7 +19,7 @@
   https://arduinotronics.blogspot.com/2013/12/temp-humidity-w-dew-point-calcualtions.html
 
   For Zambretti Ideas:
-  http://drkfs.net/zambretti.htm
+  http://drkfs.net/zambretti.htm or http://integritext.net/DrKFS/zambretti.htm
   https://raspberrypiandstuff.wordpress.com
   David Bird: https://github.com/G6EJD/ESP32_Weather_Forecaster_TN061
 
@@ -64,8 +64,12 @@
   updated 28/06/19
   -added Italian and Polish tranlation (Chak10) and (TomaszDom)
  
-  Last updated 27/11/19 to V2.32
+  updated 27/11/19 to V2.32
   -added battery protection at 3.3V, sending "batt empty" message and go to hybernate mode
+
+  Last updated 11/05/20 to v2.33
+  -corrected bug in adjustments for summer/winter
+  
 
 ////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
                                                                                                                          
@@ -514,8 +518,9 @@ char ZambrettiLetter() {
   int(z_trend) = CalculateTrend();
   // Case trend is falling
   if (z_trend == -1) {
-    float zambretti = 0.0009746 * rel_pressure_rounded * rel_pressure_rounded - 2.1068 * rel_pressure_rounded + 1138.7019; 
-    if (month(current_timestamp) < 4 || month(current_timestamp) > 9) zambretti = zambretti + 1;
+    float zambretti = 0.0009746 * rel_pressure_rounded * rel_pressure_rounded - 2.1068 * rel_pressure_rounded + 1138.7019;
+    //A Winter falling generally results in a Z value lower by 1 unit
+    if (month(current_timestamp) < 4 || month(current_timestamp) > 9) zambretti = zambretti - 1;
     Serial.print("Calculated and rounded Zambretti in numbers: ");
     Serial.println(round(zambretti));
     switch (int(round(zambretti))) {
@@ -554,7 +559,7 @@ char ZambrettiLetter() {
   if (z_trend == 1) {
     float zambretti = 142.57 - 0.1376 * rel_pressure_rounded;
     //A Summer rising, improves the prospects by 1 unit over a Winter rising
-    if (month(current_timestamp) < 4 || month(current_timestamp) > 9) zambretti = zambretti + 1;
+    if (month(current_timestamp) > 4 || month(current_timestamp) < 9) zambretti = zambretti + 1;
     Serial.print("Calculated and rounded Zambretti in numbers: ");
     Serial.println(round(zambretti));
     switch (int(round(zambretti))) {
