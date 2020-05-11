@@ -149,7 +149,7 @@ void setup() {
     if (i > 20) {
       Serial.println("Could not connect to WiFi!");
       Serial.println("Going to sleep for 10 minutes and try again.");
-      if (volt > 3.4){
+      if (volt > 3.3){
         goToSleep(10);   // go to sleep and retry after 10 min
       }  
       else{
@@ -262,7 +262,7 @@ void setup() {
 //**************************Calculate Zambretti Forecast*******************************************
   
   int accuracy_in_percent = accuracy*94/12;            // 94% is the max predicion accuracy of Zambretti
-  if ( volt > 3.3 ) {                       // check if batt is still ok
+  if ( volt > 3.4 ) {                       // check if batt is still ok
     ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
     forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
     pressure_in_words = TEXT_AIR_PRESSURE;
