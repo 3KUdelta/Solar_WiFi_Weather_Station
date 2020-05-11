@@ -149,7 +149,7 @@ void setup() {
     if (i > 20) {
       Serial.println("Could not connect to WiFi!");
       Serial.println("Going to sleep for 10 minutes and try again.");
-      if (volt > 3.3){
+      if (volt > 3.4){
         goToSleep(10);   // go to sleep and retry after 10 min
       }  
       else{
