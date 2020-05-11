@@ -35,7 +35,7 @@ Changes in V2.32
 - Warning text will be shown instead of Zambretti prediction if batt low
 
 Changes in V2.33
-- Corrected bug in the winter/summer adjustment
+- Corrected bug in the winter/summer adjustment for the Zambretti forecast
 
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
