@@ -34,6 +34,9 @@ Changes in V2.32
 - Battery monitoring and going to hibernate if battery low (battery protection)
 - Warning text will be shown instead of Zambretti prediction if batt low
 
+Changes in V2.33
+- Corrected bug in the winter/summer adjustment
+
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
