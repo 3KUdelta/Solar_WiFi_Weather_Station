@@ -559,7 +559,7 @@ char ZambrettiLetter() {
   if (z_trend == 1) {
     float zambretti = 142.57 - 0.1376 * rel_pressure_rounded;
     //A Summer rising, improves the prospects by 1 unit over a Winter rising
-    if (month(current_timestamp) > 4 || month(current_timestamp) < 9) zambretti = zambretti + 1;
+    if (month(current_timestamp) >= 4 && month(current_timestamp) <= 9) zambretti = zambretti + 1;
     Serial.print("Calculated and rounded Zambretti in numbers: ");
     Serial.println(round(zambretti));
     switch (int(round(zambretti))) {
