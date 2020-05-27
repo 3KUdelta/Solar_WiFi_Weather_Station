@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.32
+  Project Name : Solar Powered WiFi Weather Station V2.34
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
@@ -56,8 +56,10 @@
   -added Italian and Polish tranlation (Chak10) and (TomaszDom)
  updated 27/11/19 to V2.32
   -added battery protection at 3.3V, sending "batt empty" message and go to hybernate mode
-  Last updated 11/05/20 to v2.33
+ updated 11/05/20 to v2.33
   -corrected bug in adjustments for summer/winter
+ updated 27/05/20 to v2.34
+  - added August-Roche-Magnus approximation to automatically adjust humidity with temperature corrections
   
 ////  Features :  /////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                   
 // 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak and to any MQTT broker
@@ -92,7 +94,9 @@ WiFiUDP udp;
 EasyNTPClient ntpClient(udp, NTP_SERVER, TZ_SEC + DST_SEC);
 
 float measured_temp;
+float adjusted_temp;
 float measured_humi;
+float adjusted_humi;
 float measured_pres;
 float SLpressure_hPa;               // needed for rel pressure calculation
 float HeatIndex;                    // Heat Index in °C
@@ -126,7 +130,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Start of SolarWiFiWeatherStation V2.32");
+  Serial.println("Start of SolarWiFiWeatherStation V2.33");
 
   //******Battery Voltage Monitoring (first thing to do: is battery still ok?)***********
   
@@ -294,8 +298,8 @@ void setup() {
   // code block for uploading data to BLYNK App
   
   if (App1 == "BLYNK") {
-    Blynk.virtualWrite(0, measured_temp);            // virtual pin 0
-    Blynk.virtualWrite(1, measured_humi);            // virtual pin 1
+    Blynk.virtualWrite(0, adjusted_temp);            // virtual pin 0
+    Blynk.virtualWrite(1, adjusted_humi);            // virtual pin 1
     Blynk.virtualWrite(2, measured_pres);            // virtual pin 2
     Blynk.virtualWrite(3, rel_pressure_rounded);     // virtual pin 3
     Blynk.virtualWrite(4, volt);                     // virtual pin 4
@@ -323,9 +327,9 @@ void setup() {
       postStr+="&field1=";
       postStr+=String(rel_pressure_rounded);
       postStr+="&field2=";
-      postStr+=String(measured_temp);
+      postStr+=String(adjusted_temp);
       postStr+="&field3=";
-      postStr+=String(measured_humi);
+      postStr+=String(adjusted_humi);
       postStr+="&field4=";
       postStr+=String(volt);
       postStr+="&field5=";
@@ -349,98 +353,74 @@ void setup() {
   //*******************************************************************************
   // code block for publishing all data to MQTT
   
-  char _measured_temp[8];                                // Buffer big enough for 7-character float
-  dtostrf(measured_temp, 3, 1, _measured_temp);               // Leave room for too large numbers!
+  char _adjusted_temp[8];                                // Buffer big enough for 7-character float
+  dtostrf(adjusted_temp, 3, 1, _adjusted_temp);               // Leave room for too large numbers!
 
-  client.publish("home/weather/solarweatherstation/tempc", _measured_temp, 1);      // ,1 = retained
+  client.publish("home/weather/solarweatherstation/tempc", _adjusted_temp, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published air temp to home/weather/solarweatherstation/tempc");  
-  delay(50); 
   
-  char _measured_humi[8];                                // Buffer big enough for 7-character float
-  dtostrf(measured_humi, 3, 0, _measured_humi);               // Leave room for too large numbers!
+  char _adjusted_humi[8];                                // Buffer big enough for 7-character float
+  dtostrf(adjusted_humi, 3, 0, _adjusted_humi);               // Leave room for too large numbers!
 
-  client.publish("home/weather/solarweatherstation/humi", _measured_humi, 1);      // ,1 = retained
+  client.publish("home/weather/solarweatherstation/humi", _adjusted_humi, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published humidity to home/weather/solarweatherstation/humi");  
-  delay(50); 
 
   char _measured_pres[8];                                // Buffer big enough for 7-character float
   dtostrf(measured_pres, 3, 0, _measured_pres);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/abshpa", _measured_pres, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published absolute pressure to home/weather/solarweatherstation/abshpa");  
-  delay(50); 
-
+ 
   char _rel_pressure_rounded[8];                                // Buffer big enough for 7-character float
   dtostrf(rel_pressure_rounded, 3, 0, _rel_pressure_rounded);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/relhpa", _rel_pressure_rounded, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published voltage to home/weather/solarweatherstation/relhpa");  
-  delay(50); 
 
   char _volt[8];                                // Buffer big enough for 7-character float
   dtostrf(volt, 3, 2, _volt);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/battv", _volt, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published relative pressure to home/weather/solarweatherstation/battv");  
-  delay(50); 
 
   char _DewpointTemperature[8];                                // Buffer big enough for 7-character float
   dtostrf(DewpointTemperature, 3, 1, _DewpointTemperature);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/dewpointc", _DewpointTemperature, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published dewpoint to home/weather/solarweatherstation/dewpointc");  
-  delay(50); 
 
   char _HeatIndex[8];                                // Buffer big enough for 7-character float
   dtostrf(HeatIndex, 3, 1, _HeatIndex);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/heatindexc", _HeatIndex, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published heatindex to home/weather//solarweatherstation/heatindexc");  
-  delay(50); 
 
   char _accuracy_in_percent[8];                                // Buffer big enough for 7-character float
   dtostrf(accuracy_in_percent, 3, 0, _accuracy_in_percent);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/accuracy", _accuracy_in_percent, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published accuracy to home/weather/solarweatherstation/accuracy");  
-  delay(50); 
 
   char _DewPointSpread[8];                                // Buffer big enough for 7-character float
   dtostrf(DewPointSpread, 3, 1, _DewPointSpread);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/spreadc", _DewPointSpread, 1);      // ,1 = retained
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published spread to home/weather/solarweatherstation/spreadc");  
-  delay(50);
 
   char tmp1[128];
   ZambrettisWords.toCharArray(tmp1, 128);
   client.publish("home/weather/solarweatherstation/zambrettisays", tmp1, 1);
-  delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published Zambretti's words to home/weather/solarweatherstation/zambrettisays");  
   delay(50);
 
   char tmp2[128];
   trend_in_words.toCharArray(tmp2, 128);
   client.publish("home/weather/solarweatherstation/trendinwords", tmp2, 1);
   delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published trend in words to home/weather/solarweatherstation/trendinwords");  
-  delay(50);
 
   char _trend[8];                                // Buffer big enough for 7-character float
   dtostrf(pressure_difference[11], 3, 2, _trend);               // Leave room for too large numbers!
 
   client.publish("home/weather/solarweatherstation/trend", _trend, 1);      // ,1 = retained
-  delay(50);
-  client.publish("home/debug", "SolarWeatherstation: Just published trend to home/weather/solarweatherstation/trend");  
   delay(50);
 
   if (volt > 3.3) {          //check if batt still ok, if yes
@@ -463,7 +443,6 @@ void measurementEvent() {
 
   // Get temperature
   measured_temp = bme.readTemperature();
-  measured_temp = measured_temp + TEMP_CORR;
   // print on serial monitor
   Serial.print("Temp: ");
   Serial.print(measured_temp);
@@ -471,8 +450,6 @@ void measurementEvent() {
  
   // Get humidity
   measured_humi = bme.readHumidity();
-  measured_humi = measured_humi + HUMI_CORR;
-  if (measured_humi > 100) measured_humi = 100;    // the HUMI_CORR might lead in a value higher than 100%
   // print on serial monitor
   Serial.print("Humidity: ");
   Serial.print(measured_humi);
@@ -502,18 +479,32 @@ void measurementEvent() {
   Serial.print(DewpointTemperature);
   Serial.println("°C; ");
 
+  // With the dewpoint calculated we can correct temp and automatically calculate humidity
+  adjusted_temp = measured_temp + TEMP_CORR;
+  if (adjusted_temp < DewpointTemperature) adjusted_temp = DewpointTemperature; //compensation, if offset too high
+  //August-Roche-Magnus approximation (http://bmcnoldy.rsmas.miami.edu/Humidity.html)
+  adjusted_humi = 100 * (exp((a * DewpointTemperature) / (b + DewpointTemperature)) / exp((a * adjusted_temp) / (b + adjusted_temp)));
+  if (adjusted_humi > 100) adjusted_humi = 100;    // just in case
+  // print on serial monitor
+  Serial.print("Temp adjusted: ");
+  Serial.print(adjusted_temp);
+  Serial.print("°C; ");
+  Serial.print("Humidity adjusted: ");
+  Serial.print(adjusted_humi);
+  Serial.print("%; ");
+
   // Calculate dewpoint spread (difference between actual temp and dewpoint -> the smaller the number: rain or fog
 
-  DewPointSpread = measured_temp - DewpointTemperature;
+  DewPointSpread = adjusted_temp - DewpointTemperature;
   Serial.print("Dewpoint Spread: ");
   Serial.print(DewPointSpread);
   Serial.println("°C; ");
 
   // Calculate HI (heatindex in °C) --> HI starts working above 26,7 °C
-  if (measured_temp > 26.7) {
+  if (adjusted_temp > 26.7) {
   double c1 = -8.784, c2 = 1.611, c3 = 2.338, c4 = -0.146, c5= -1.230e-2, c6=-1.642e-2, c7=2.211e-3, c8=7.254e-4, c9=-2.582e-6  ;
-  double T = measured_temp;
-  double R = measured_humi;
+  double T = adjusted_temp;
+  double R = adjusted_humi;
   
   double A = (( c5 * T) + c2) * T + c1;
   double B = ((c7 * T) + c4) * T + c3;
@@ -521,7 +512,7 @@ void measurementEvent() {
   HeatIndex = (C * R + B) * R + A; 
   } 
   else {
-    HeatIndex = measured_temp;
+    HeatIndex = adjusted_temp;
     Serial.println("Not warm enough (less than 26.7 °C) for Heatindex");
   }
   Serial.print("HeatIndex: ");
@@ -664,6 +655,9 @@ char ZambrettiLetter() {
       case 13: z_letter = 'Z'; break;;      //Stormy, much rain
     }
   }
+  char* tmp1 = &z_letter;
+  client.publish("home/weather/solarweatherstation/zletter", tmp1, 1);         // ,1 = retained
+  delay(50);
   Serial.print("This is Zambretti's famous letter: ");
   Serial.println(z_letter);
   return z_letter;
@@ -699,7 +693,7 @@ String ZambrettiSays(char code){
   case 'Y': zambrettis_words = TEXT_ZAMBRETTI_Y; break;
   case 'Z': zambrettis_words = TEXT_ZAMBRETTI_Z; break;
   case '0': zambrettis_words = TEXT_ZAMBRETTI_0; break;
-   default: zambrettis_words = TEXT_ZAMBRETTI_DEFAULT; break;
+  default:  zambrettis_words = TEXT_ZAMBRETTI_DEFAULT; break;
   }
   return zambrettis_words;
 }
