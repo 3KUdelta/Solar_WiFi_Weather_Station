@@ -37,6 +37,10 @@ Changes in V2.32
 Changes in V2.33
 - Corrected bug in the winter/summer adjustment for the Zambretti forecast
 
+Changes in V2.34
+- added August-Roche-Magnus approximation to automatically adjust humidity with temperature corrections
+- Code cleanup
+
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
