@@ -267,7 +267,7 @@ void setup() {
 
 //**************************Calculate Zambretti Forecast*******************************************
   
-  int accuracy_in_percent = accuracy*94/12;            // 94% is the max predicion accuracy of Zambretti
+  int accuracy_in_percent = accuracy*94/12;            // 94% is the max predicion accuracy of Zambretti 
   if ( volt > 3.4 ) {                       // check if batt is still ok
     ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
     forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
