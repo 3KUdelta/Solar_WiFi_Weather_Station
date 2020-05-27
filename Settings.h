@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.31
+  Project Name : Solar Powered WiFi Weather Station V2.34
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
@@ -31,7 +31,7 @@ const char* mqtt_server = "192.xxx.xxx.xxx";      // MQTT Server (broker) addres
 #define LANGUAGE 'DE'               //check translation.h for available languages. Currently EN/DE/FR/IT/PL/RO/SP
 
 #define TEMP_CORR (-1)              //Manual correction of temp sensor (mine reads 1 degree too high)
-#define HUMI_CORR (+4)               // Changing temperature -1 equals humidity +4 (average, not precise but good enough for me)
+#define HUMI_CORR (+4)              // not used anymore in V2.34 (automatically calculated)
 
 #define ELEVATION (505)             //Enter your elevation in m ASL to calculate rel pressure (ASL/QNH) at your place
 
