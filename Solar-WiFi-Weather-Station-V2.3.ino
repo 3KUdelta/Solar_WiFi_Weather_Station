@@ -1,6 +1,6 @@
 
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.32
+  Project Name : Solar Powered WiFi Weather Station V2.34
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
@@ -67,8 +67,11 @@
   updated 27/11/19 to V2.32
   -added battery protection at 3.3V, sending "batt empty" message and go to hybernate mode
 
-  Last updated 11/05/20 to v2.33
+ updated 11/05/20 to v2.33
   -corrected bug in adjustments for summer/winter
+  
+ updated 27/05/20 to v2.34
+  - added August-Roche-Magnus approximation to automatically adjust humidity with temperature corrections
   
 
 ////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -380,16 +383,13 @@ void measurementEvent() {
 
   // Get temperature
   measured_temp = bme.readTemperature();
-  measured_temp = measured_temp + TEMP_CORR;
   // print on serial monitor
   Serial.print("Temp: ");
   Serial.print(measured_temp);
   Serial.print("°C; ");
  
-  // Get humidity
+ // Get humidity
   measured_humi = bme.readHumidity();
-  measured_humi = measured_humi + HUMI_CORR;
-  if (measured_humi > 100) measured_humi = 100;    // the HUMI_CORR might lead in a value higher than 100%
   // print on serial monitor
   Serial.print("Humidity: ");
   Serial.print(measured_humi);
@@ -418,6 +418,20 @@ void measurementEvent() {
   Serial.print("Dewpoint: ");
   Serial.print(DewpointTemperature);
   Serial.println("°C; ");
+
+  // With the dewpoint calculated we can correct temp and automatically calculate humidity
+  adjusted_temp = measured_temp + TEMP_CORR;
+  if (adjusted_temp < DewpointTemperature) adjusted_temp = DewpointTemperature; //compensation, if offset too high
+  //August-Roche-Magnus approximation (http://bmcnoldy.rsmas.miami.edu/Humidity.html)
+  adjusted_humi = 100 * (exp((a * DewpointTemperature) / (b + DewpointTemperature)) / exp((a * adjusted_temp) / (b + adjusted_temp)));
+  if (adjusted_humi > 100) adjusted_humi = 100;    // just in case
+  // print on serial monitor
+  Serial.print("Temp adjusted: ");
+  Serial.print(adjusted_temp);
+  Serial.print("°C; ");
+  Serial.print("Humidity adjusted: ");
+  Serial.print(adjusted_humi);
+  Serial.print("%; ");
 
   // Calculate dewpoint spread (difference between actual temp and dewpoint -> the smaller the number: rain or fog
 
