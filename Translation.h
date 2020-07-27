@@ -293,5 +293,46 @@
   const char TEXT_ZAMBRETTI_Z[]       = "Tormenta, mucha lluvia";
   const char TEXT_ZAMBRETTI_0[]       = "¡Batería baja, por favor recargue!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Sin pronóstico por el momento";
+  
+#elif LANGUAGE == 'TR'
+  const char TEXT_AIR_PRESSURE[]      = "Basınç";
+  const char TEXT_RISING_FAST[]       = "hızla artıyor";
+  const char TEXT_RISING[]            = "artıyor";
+  const char TEXT_RISING_SLOW[]       = "yavaş yavaş artıyor";
+  const char TEXT_STEADY[]            = "kararlı";
+  const char TEXT_FALLING_SLOW[]      = "yavaş yavaş azalıyor";
+  const char TEXT_FALLING[]           = "azalıyor";
+  const char TEXT_FALLING_FAST[]      = "hızla azalıyor";
+  
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Tahmin";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Tahmin doğruluğu";
+  const char TEXT_ZAMBRETTI_A[]       = "Stabil Güzel Hava";
+  const char TEXT_ZAMBRETTI_B[]       = "Güzel Hava";
+  const char TEXT_ZAMBRETTI_C[]       = "İyileşen Hava";
+  const char TEXT_ZAMBRETTI_D[]       = "Güzel, ancak kararsız";
+  const char TEXT_ZAMBRETTI_E[]       = "Yağmurlu ve güzel hava";
+  const char TEXT_ZAMBRETTI_F[]       = "Çok iyi hava, gelişiyor";
+  const char TEXT_ZAMBRETTI_G[]       = "Güzel hava, ancak sağanak yağışlı";
+  const char TEXT_ZAMBRETTI_H[]       = "Hava iyi, ancak çiseliyor";
+  const char TEXT_ZAMBRETTI_I[]       = "Çiseliyor ama düzeliyor";
+  const char TEXT_ZAMBRETTI_J[]       = "Değişken iyileşme";
+  const char TEXT_ZAMBRETTI_K[]       = "Muhtemel yağışlı, güzel hava";
+  const char TEXT_ZAMBRETTI_L[]       = "Kararsız, gelişiyor";
+  const char TEXT_ZAMBRETTI_M[]       = "Olası iyileştirmelerle kararsız hava";
+  const char TEXT_ZAMBRETTI_N[]       = "Aralıklarla yağmurlu";
+  const char TEXT_ZAMBRETTI_O[]       = "Yağmurlu, kararsız";
+  const char TEXT_ZAMBRETTI_P[]       = "Sağanak Yağmur";
+  const char TEXT_ZAMBRETTI_Q[]       = "Kısa süreli iyi hava, kararsız";
+  const char TEXT_ZAMBRETTI_R[]       = "Kararsız, sonrasında yağmurlu";
+  const char TEXT_ZAMBRETTI_S[]       = "Kararsız, zaman zaman yağmurlu";
+  const char TEXT_ZAMBRETTI_T[]       = "Çok kararsız, sonrasında iyileşiyor";
+  const char TEXT_ZAMBRETTI_U[]       = "Yağmur ithimali, sonrasında kötüleşiyor";
+  const char TEXT_ZAMBRETTI_V[]       = "Aralıklı yağmur, çok kararsız";
+  const char TEXT_ZAMBRETTI_W[]       = "Sık Aralıklı Yağmur";
+  const char TEXT_ZAMBRETTI_X[]       = "Çok kararsız, yağmurlu";
+  const char TEXT_ZAMBRETTI_Y[]       = "Fırtınalı, muhtemelen gelişiyor";
+  const char TEXT_ZAMBRETTI_Z[]       = "Fırtınalı, çok yağmurlu";
+  const char TEXT_ZAMBRETTI_0[]       = "Pil boş, lütfen şarj edin!";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Üzgünüz, şu an için tahmin yok";
 
 #endif
