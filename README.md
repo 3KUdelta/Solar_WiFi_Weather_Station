@@ -16,6 +16,7 @@ Major changes:
   - Romanian (zangaby)
   - French (Ludestru)
   - Spanish (Fedecatt)
+  - Turkish (Mert Sarac)
 
 Changes in V2.3
 - included famous Zambretti forecaster (see Blynk example)
