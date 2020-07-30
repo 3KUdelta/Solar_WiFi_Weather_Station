@@ -335,4 +335,44 @@
   const char TEXT_ZAMBRETTI_0[]       = "Pil boş, lütfen şarj edin!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Üzgünüz, şu an için tahmin yok";
 
+#elif LANGUAGE == 'NL'
+  const char TEXT_AIR_PRESSURE[]      = "Luchtdruk";
+  const char TEXT_RISING_FAST[]       = "neemt snel toe";
+  const char TEXT_RISING[]            = "neemt toe";
+  const char TEXT_RISING_SLOW[]       = "neemt langzaam ote";
+  const char TEXT_STEADY[]            = "stabiel";
+  const char TEXT_FALLING_SLOW[]      = "neemt langzaam af";
+  const char TEXT_FALLING[]           = "neemt af";
+  const char TEXT_FALLING_FAST[]      = "neemt snel aff";
+  
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Voorspelling";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Voorspellings nauwkeurigheid";
+  const char TEXT_ZAMBRETTI_A[]       = "Stabiel mooi weer";
+  const char TEXT_ZAMBRETTI_B[]       = "Nooi Weer";
+  const char TEXT_ZAMBRETTI_C[]       = "Wordt mooi";
+  const char TEXT_ZAMBRETTI_D[]       = "Mooi, minder stabield";
+  const char TEXT_ZAMBRETTI_E[]       = "Mooi, mogelijke buien";
+  const char TEXT_ZAMBRETTI_F[]       = "Redelijk mooi, Verbeterd";
+  const char TEXT_ZAMBRETTI_G[]       = "Redelijk mooi, Mogelijk vroege regen";
+  const char TEXT_ZAMBRETTI_H[]       = "Redelijk mooi, met later regen";
+  const char TEXT_ZAMBRETTI_I[]       = "Vroege regen, met opklaringen";
+  const char TEXT_ZAMBRETTI_J[]       = "Veranderlijk met opklaringen";
+  const char TEXT_ZAMBRETTI_K[]       = "Redlijk mooi, Regen verwacht";
+  const char TEXT_ZAMBRETTI_L[]       = "Redelijk veranderlijk met later opklaringen";
+  const char TEXT_ZAMBRETTI_M[]       = "Veranderlijk, wordt mogelijk beter";
+  const char TEXT_ZAMBRETTI_N[]       = "Af en toe bewolkt";
+  const char TEXT_ZAMBRETTI_O[]       = "Zwaar bewolkt";
+  const char TEXT_ZAMBRETTI_P[]       = "Veranderlijk af en te regen";
+  const char TEXT_ZAMBRETTI_Q[]       = "Onbestendig, korte opklaringen";
+  const char TEXT_ZAMBRETTI_R[]       = "Onbestendig, later regen";
+  const char TEXT_ZAMBRETTI_S[]       = "Onbestendig, af en toe regen";
+  const char TEXT_ZAMBRETTI_T[]       = "Erg onbestendig, wordt stabiler";
+  const char TEXT_ZAMBRETTI_U[]       = "Af en toe regen, wordt slechter";
+  const char TEXT_ZAMBRETTI_V[]       = "Af en toe regen, wordt onbestendig";
+  const char TEXT_ZAMBRETTI_W[]       = "Regen regelmatig";
+  const char TEXT_ZAMBRETTI_X[]       = "Heel onbestendig, Regen";
+  const char TEXT_ZAMBRETTI_Y[]       = "Stormachtig, mogelijk beter";
+  const char TEXT_ZAMBRETTI_Z[]       = "Stormachtig, hevige regenval";
+  const char TEXT_ZAMBRETTI_0[]       = "Batterij leeg, laad op!";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Sorry, geen voorspellong beschikbaar";
 #endif
