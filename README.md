@@ -17,6 +17,7 @@ Major changes:
   - French (Ludestru)
   - Spanish (Fedecatt)
   - Turkish (Mert Sarac)
+  - Dutch (Rickthefrog)
 
 Changes in V2.3
 - included famous Zambretti forecaster (see Blynk example)
