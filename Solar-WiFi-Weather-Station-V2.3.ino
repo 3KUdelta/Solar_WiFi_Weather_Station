@@ -114,6 +114,8 @@ EasyNTPClient ntpClient(udp, NTP_SERVER, TZ_SEC + DST_SEC);
 float measured_temp;
 float measured_humi;
 float measured_pres;
+float adjusted_temp;
+float adjusted_humi;
 float SLpressure_hPa;               // needed for rel pressure calculation
 float HeatIndex;                    // Heat Index in °C
 float volt;
