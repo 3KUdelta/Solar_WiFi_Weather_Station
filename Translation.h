@@ -39,7 +39,7 @@
   const char TEXT_ZAMBRETTI_R[]       = "Unsettled, rain later";
   const char TEXT_ZAMBRETTI_S[]       = "Unsettled, rain at times";
   const char TEXT_ZAMBRETTI_T[]       = "Very unsettled, finer at times";
-  const char TEXT_ZAMBRETTI_U[]       = "Rain at times, eorse later";
+  const char TEXT_ZAMBRETTI_U[]       = "Rain at times, worse later";
   const char TEXT_ZAMBRETTI_V[]       = "Rain at times, becoming very unsettled";
   const char TEXT_ZAMBRETTI_W[]       = "Rain at frequent intervals";
   const char TEXT_ZAMBRETTI_X[]       = "Very unsettled, rain";
