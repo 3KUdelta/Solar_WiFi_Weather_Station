@@ -28,7 +28,7 @@
   const char TEXT_ZAMBRETTI_G[]       = "Fairly fine, possibly showers early";
   const char TEXT_ZAMBRETTI_H[]       = "Fairly fine, showers later";
   const char TEXT_ZAMBRETTI_I[]       = "Showery early, improving";
-  const char TEXT_ZAMBRETTI_J[]       = "Changeable improving";
+  const char TEXT_ZAMBRETTI_J[]       = "Changeable, improving";
   const char TEXT_ZAMBRETTI_K[]       = "Fairly fine, showers likely";
   const char TEXT_ZAMBRETTI_L[]       = "Rather unsettled, clearing later";
   const char TEXT_ZAMBRETTI_M[]       = "Unsettled, probably improving";
