@@ -375,4 +375,45 @@
   const char TEXT_ZAMBRETTI_Z[]       = "Stormachtig, hevige regenval";
   const char TEXT_ZAMBRETTI_0[]       = "Batterij leeg, laad op!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Sorry, geen voorspellong beschikbaar";
+
+#if LANGUAGE == 'NO'
+  const char TEXT_AIR_PRESSURE[]      = "Lufttrykk";
+  const char TEXT_RISING_FAST[]       = "Raskt stigende";
+  const char TEXT_RISING[]            = "Stigende";
+  const char TEXT_RISING_SLOW[]       = "Sakte stigende";
+  const char TEXT_STEADY[]            = "Stabilt";
+  const char TEXT_FALLING_SLOW[]      = "Sakte fallende";
+  const char TEXT_FALLING[]           = "Fallende";
+  const char TEXT_FALLING_FAST[]      = "Raskt fallende";
+  
+  const char TEXT_ZAMBRETTI_FORECAST[]= "Værvarsel";
+  const char TEXT_ZAMBRETTI_ACCURACY[]= "Værvarslingsnøyaktighet";
+  const char TEXT_ZAMBRETTI_A[]       = "Stabilt pent vær";
+  const char TEXT_ZAMBRETTI_B[]       = "Pent vær";
+  const char TEXT_ZAMBRETTI_C[]       = "Oppklarnende vær";
+  const char TEXT_ZAMBRETTI_D[]       = "Pent, tilskyende vær";
+  const char TEXT_ZAMBRETTI_E[]       = "Pent, mulighet for lette byger";
+  const char TEXT_ZAMBRETTI_F[]       = "Stort sett oppholdsvær, senere pent";
+  const char TEXT_ZAMBRETTI_G[]       = "Stort sett oppholdsvær, mulighet for tidlige lette byger";
+  const char TEXT_ZAMBRETTI_H[]       = "Stort sett oppholdsvær, senere lette byger";
+  const char TEXT_ZAMBRETTI_I[]       = "Tidlig lett nedbør, senere oppklarnende vær";
+  const char TEXT_ZAMBRETTI_J[]       = "Urolig, mulighet for lettere vær";
+  const char TEXT_ZAMBRETTI_K[]       = "Stort sett oppholdsvær, sannsynligvis lette byger";
+  const char TEXT_ZAMBRETTI_L[]       = "Ganske urolig, oppklarnende vær";
+  const char TEXT_ZAMBRETTI_M[]       = "Urolig, mulighet for lettere vær";
+  const char TEXT_ZAMBRETTI_N[]       = "Lett nedbør, noe sol";
+  const char TEXT_ZAMBRETTI_O[]       = "Lett nedbør, senere urolig";
+  const char TEXT_ZAMBRETTI_P[]       = "Vekslende vær, noe nedbør";
+  const char TEXT_ZAMBRETTI_Q[]       = "Urolig, noe oppholdsvær";
+  const char TEXT_ZAMBRETTI_R[]       = "Urolig, senere nedbør";
+  const char TEXT_ZAMBRETTI_S[]       = "Urolig, noen byger";
+  const char TEXT_ZAMBRETTI_T[]       = "Veldig urolig, noe oppholdsvær";
+  const char TEXT_ZAMBRETTI_U[]       = "Noen byger, senere mer nedbør";
+  const char TEXT_ZAMBRETTI_V[]       = "Noen byger, blir ganske urolig";
+  const char TEXT_ZAMBRETTI_W[]       = "Byger";
+  const char TEXT_ZAMBRETTI_X[]       = "Veldig urolig, nedbør";
+  const char TEXT_ZAMBRETTI_Y[]       = "Uvær, mulighet for lettere vær";
+  const char TEXT_ZAMBRETTI_Z[]       = "Uvær, store nedbørsmengder";
+  const char TEXT_ZAMBRETTI_0[]       = "Tomt batteri, vennligst lad!";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Beklager, ikke noe værvarsel for øyeblikket";
 #endif
