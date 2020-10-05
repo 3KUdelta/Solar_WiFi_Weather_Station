@@ -18,6 +18,7 @@ Major changes:
   - Spanish (Fedecatt)
   - Turkish (Mert Sarac)
   - Dutch (Rickthefrog)
+  - Norwegian (solbero)
 
 Changes in V2.3
 - included famous Zambretti forecaster (see Blynk example)
