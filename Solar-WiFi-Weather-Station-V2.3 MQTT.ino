@@ -145,6 +145,7 @@ void setup() {
 
   // **************Application going online**********************************************
   
+  WiFi.mode(WIFI_STA);
   WiFi.hostname("SolarWeatherStation"); //This changes the hostname of the ESP8266 to display neatly on the network esp on router.
   WiFi.begin(ssid, pass);
   Serial.print("---> Connecting to WiFi ");
