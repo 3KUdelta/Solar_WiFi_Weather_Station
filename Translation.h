@@ -376,7 +376,7 @@
   const char TEXT_ZAMBRETTI_0[]       = "Batterij leeg, laad op!";
   const char TEXT_ZAMBRETTI_DEFAULT[] = "Sorry, geen voorspellong beschikbaar";
 
-#if LANGUAGE == 'NO'
+#elif LANGUAGE == 'NO'
   const char TEXT_AIR_PRESSURE[]      = "Lufttrykk";
   const char TEXT_RISING_FAST[]       = "Raskt stigende";
   const char TEXT_RISING[]            = "Stigende";
