@@ -374,7 +374,7 @@
   const char TEXT_ZAMBRETTI_Y[]       = "Stormachtig, mogelijk beter";
   const char TEXT_ZAMBRETTI_Z[]       = "Stormachtig, hevige regenval";
   const char TEXT_ZAMBRETTI_0[]       = "Batterij leeg, laad op!";
-  const char TEXT_ZAMBRETTI_DEFAULT[] = "Sorry, geen voorspellong beschikbaar";
+  const char TEXT_ZAMBRETTI_DEFAULT[] = "Sorry, geen voorspelling beschikbaar";
 
 #elif LANGUAGE == 'NO'
   const char TEXT_AIR_PRESSURE[]      = "Lufttrykk";
