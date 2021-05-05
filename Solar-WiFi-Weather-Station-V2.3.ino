@@ -343,9 +343,9 @@ void setup() {
       postStr+="&field1=";
       postStr+=String(rel_pressure_rounded);
       postStr+="&field2=";
-      postStr+=String(measured_temp);
+      postStr+=String(adjusted_temp);
       postStr+="&field3=";
-      postStr+=String(measured_humi);
+      postStr+=String(adjusted_humi);
       postStr+="&field4=";
       postStr+=String(volt);
       postStr+="&field5=";
