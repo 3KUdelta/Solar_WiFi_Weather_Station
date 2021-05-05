@@ -314,8 +314,8 @@ void setup() {
   // code block for uploading data to BLYNK App
   
   if (App1 == "BLYNK") {
-    Blynk.virtualWrite(0, measured_temp);            // virtual pin 0
-    Blynk.virtualWrite(1, measured_humi);            // virtual pin 1
+    Blynk.virtualWrite(0, adjusted_temp);            // virtual pin 0
+    Blynk.virtualWrite(1, adjusted_humi);            // virtual pin 1
     Blynk.virtualWrite(2, measured_pres);            // virtual pin 2
     Blynk.virtualWrite(3, rel_pressure_rounded);     // virtual pin 3
     Blynk.virtualWrite(4, volt);                     // virtual pin 4
