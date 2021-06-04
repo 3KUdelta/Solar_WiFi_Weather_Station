@@ -147,7 +147,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Start of SolarWiFiWeatherStation V2.32");
+  Serial.println("Start of SolarWiFiWeatherStation V2.34");
 
   //******Battery Voltage Monitoring*********************************************
   
