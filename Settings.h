@@ -56,7 +56,7 @@ virtual pin 5 Dewpoint (Celcius)
 virtual pin 6 HeatIndex (Celcius)
 virtual pin 7 Zambrettis Words
 virtual pin 8 Accuracy in percent (%)
-virtual pin 9 Tend in Words
+virtual pin 9 Trend in Words
 virtual pin 10 Dewpoint Spread
 
 ThingSpeak:
@@ -72,7 +72,7 @@ Field 7: HeatIndex (Celcius)
 MQTT
 
 home/weather/solarweatherstation/tempc
-home/weather//solarweatherstation/heatindexc
+home/weather/solarweatherstation/heatindexc
 home/weather/solarweatherstation/dewpointc
 home/weather/solarweatherstation/spreadc
 home/weather/solarweatherstation/abshpa
