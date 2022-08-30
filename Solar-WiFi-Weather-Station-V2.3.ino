@@ -1,11 +1,11 @@
 
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.34
+  Project Name : Solar Powered WiFi Weather Station V2.35
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com
-  
+
   Main microcontroller (ESP8266) and BME280 both sleep between measurements
   BME280 is used in single shot mode ("forced mode")
 
@@ -14,8 +14,8 @@
   3D FILES: https://www.thingiverse.com/thing:3551386
 
   CREDITS:
-  
-  Inspiration and code fragments of Dewpoint and Heatindex calculations are taken from:  
+
+  Inspiration and code fragments of Dewpoint and Heatindex calculations are taken from:
   https://arduinotronics.blogspot.com/2013/12/temp-humidity-w-dew-point-calcualtions.html
 
   For Zambretti Ideas:
@@ -34,7 +34,7 @@
   <TimeLib.h>            --> https://github.com/PaulStoffregen/Time.git
 
   CREDITS for Adafruit libraries:
-  
+
   This is a library for the BME280 humidity, temperature & pressure sensor
   Designed specifically to work with the Adafruit BME280 Breakout
   ----> http://www.adafruit.com/products/2650
@@ -45,8 +45,8 @@
   from Adafruit!
   Written by Limor Fried & Kevin Townsend for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
-  
-  Hardware Settings Mac: 
+
+  Hardware Settings Mac:
   LOLIN(WEMOS) D1 mini Pro, 80 MHz, Flash, 16M (14M SPIFFS), v2 Lower Memory, Disable, None, Only Sketch, 921600 on /dev/cu.SLAB_USBtoUART
 
   major update on 15/05/2019
@@ -63,35 +63,37 @@
 
   updated 28/06/19
   -added Italian and Polish tranlation (Chak10) and (TomaszDom)
- 
+
   updated 27/11/19 to V2.32
   -added battery protection at 3.3V, sending "batt empty" message and go to hybernate mode
 
- updated 11/05/20 to v2.33
+  updated 11/05/20 to v2.33
   -corrected bug in adjustments for summer/winter
-  
- updated 27/05/20 to v2.34
+
+  updated 27/05/20 to v2.34
   - added August-Roche-Magnus approximation to automatically adjust humidity with temperature corrections
-  
 
-////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
-                                                                                                                         
-// 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak
+  corrected Thingspeak issue v2.35
 
-// 2. Monitoring Weather parameters like Temperature, Pressure abs, Pressure MSL and Humidity.
 
-// 3. Extra Ports to add more Weather Sensors like UV Index, Light and Rain Guage etc.
+  ////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// 4. Remote Battery Status Monitoring
+  // 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak
 
-// 5. Using Sleep mode to reduce the energy consumed                                        
+  // 2. Monitoring Weather parameters like Temperature, Pressure abs, Pressure MSL and Humidity.
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // 3. Extra Ports to add more Weather Sensors like UV Index, Light and Rain Guage etc.
 
-/***************************************************
- * VERY IMPORTANT:                                 *
+  // 4. Remote Battery Status Monitoring
+
+  // 5. Using Sleep mode to reduce the energy consumed
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  /***************************************************
+   VERY IMPORTANT:
  *                                                 *
- * Enter your personal settings in Settings.h !    *
+   Enter your personal settings in Settings.h !
  *                                                 *
  **************************************************/
 
@@ -106,6 +108,7 @@
 #include "FS.h"
 #include <EasyNTPClient.h>       //https://github.com/aharshac/EasyNTPClient
 #include <TimeLib.h>             //https://github.com/PaulStoffregen/Time.git
+#include "ThingSpeak.h"
 
 Adafruit_BME280 bme;             // I2C
 WiFiUDP udp;
@@ -120,7 +123,7 @@ float SLpressure_hPa;               // needed for rel pressure calculation
 float HeatIndex;                    // Heat Index in °C
 float volt;
 int rel_pressure_rounded;
-double DewpointTemperature;
+float DewpointTemperature;
 float DewPointSpread;               // Difference between actual temperature and dewpoint
 
 // FORECAST CALCULATION
@@ -128,7 +131,7 @@ unsigned long current_timestamp;    // Actual timestamp read from NTPtime_t now;
 unsigned long saved_timestamp;      // Timestamp stored in SPIFFS
 
 float pressure_value[12];           // Array for the historical pressure values (6 hours, all 30 mins)
-                                    // where as pressure_value[0] is always the most recent value
+// where as pressure_value[0] is always the most recent value
 float pressure_difference[12];      // Array to calculate trend with pressure differences
 
 // FORECAST RESULT
@@ -144,24 +147,24 @@ void(* resetFunc) (void) = 0;       // declare reset function @ address 0
 WiFiClient client;
 
 void setup() {
-  
+
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Start of SolarWiFiWeatherStation V2.34");
+  Serial.println("Start of SolarWiFiWeatherStation V2.35");
 
   //******Battery Voltage Monitoring*********************************************
-  
+
   // Voltage divider R1 = 220k+100k+220k =540k and R2=100k
   float calib_factor = 5.28; // change this value to calibrate the battery voltage
   unsigned long raw = analogRead(A0);
-  volt = raw * calib_factor/1024; 
-  
+  volt = raw * calib_factor / 1024;
+
   Serial.print( "Voltage = ");
   Serial.print(volt, 2); // print with 2 decimal places
   Serial.println (" V");
 
   // **************Application going online**********************************
-  
+
   WiFi.mode(WIFI_STA);
   WiFi.hostname("SolarWeatherStation"); //This changes the hostname of the ESP8266 to display neatly on the network esp on router.
   WiFi.begin(ssid, pass);
@@ -173,25 +176,28 @@ void setup() {
     if (i > 20) {
       Serial.println("Could not connect to WiFi!");
       Serial.println("Going to sleep for 10 minutes and try again.");
-      if (volt > 3.3){
+      if (volt > 3.3) {
         goToSleep(10);   // go to sleep and retry after 10 min
-      }  
-      else{
+      }
+      else {
         goToSleep(0);   // hybernate because batt empty
       }
     }
-  Serial.print(".");
+    Serial.print(".");
   }
-  Serial.println(" Wifi connected ok"); 
-    
-  if (App1 == "BLYNK") {        // for posting data to Blynk App
+  Serial.println(" Wifi connected ok");
+
+  if (App1 == "BLYNK") {
     Blynk.begin(auth, ssid, pass);
-  } 
-  
+  }
+  if (App2 == "THINGSPEAK") {
+    ThingSpeak.begin(client);  // Initialize ThingSpeak
+  }
+
   //*****************Checking if SPIFFS available********************************
 
   Serial.println("SPIFFS Initialization: (First time run can last up to 30 sec - be patient)");
-  
+
   boolean mounted = SPIFFS.begin();               // load config if it exists. Otherwise use defaults.
   if (!mounted) {
     Serial.println("FS not formatted. Doing that now... (can last up to 30 sec).");
@@ -199,23 +205,23 @@ void setup() {
     Serial.println("FS formatted...");
     SPIFFS.begin();
   }
-  
+
   //******** GETTING THE TIME FROM NTP SERVER  ***********************************
-  
+
   Serial.println("---> Now reading time from NTP Server");
   int ii = 0;
-  while(!ntpClient.getUnixTime()){
-    delay(100); 
+  while (!ntpClient.getUnixTime()) {
+    delay(100);
     ii++;
     if (ii > 20) {
       Serial.println("Could not connect to NTP Server!");
       Serial.println("Doing a reset now and retry a connection from scratch.");
       resetFunc();
-      }  
-    Serial.print("."); 
+    }
+    Serial.print(".");
   }
   current_timestamp = ntpClient.getUnixTime();      // get UNIX timestamp (seconds from 1.1.1970 on)
-  
+
   Serial.print("Current UNIX Timestamp: ");
   Serial.println(current_timestamp);
 
@@ -223,34 +229,34 @@ void setup() {
   Serial.print(hour(current_timestamp));
   Serial.print(":");
   Serial.print(minute(current_timestamp));
-  Serial.print(":"); 
+  Serial.print(":");
   Serial.print(second(current_timestamp));
   Serial.print("; ");
   Serial.print(day(current_timestamp));
   Serial.print(".");
   Serial.print(month(current_timestamp));         // needed later: month as integer for Zambretti calcualtion
   Serial.print(".");
-  Serial.println(year(current_timestamp));      
-             
-  //******** GETTING RELATIVE PRESSURE DATA FROM SENSOR (BME680)  ******************** 
-  
+  Serial.println(year(current_timestamp));
+
+  //******** GETTING RELATIVE PRESSURE DATA FROM SENSOR (BME680)  ********************
+
   bool bme_status;
   bme_status = bme.begin(0x76);  //address either 0x76 or 0x77
   if (!bme_status) {
-      Serial.println("Could not find a valid BME280 sensor, check wiring!");
+    Serial.println("Could not find a valid BME280 sensor, check wiring!");
   }
 
   Serial.println("forced mode, 1x temperature / 1x humidity / 1x pressure oversampling,");
   Serial.println("filter off");
 
   bme.setSampling(Adafruit_BME280::MODE_FORCED,
-                Adafruit_BME280::SAMPLING_X1, // temperature
-                Adafruit_BME280::SAMPLING_X1, // pressure
-                Adafruit_BME280::SAMPLING_X1, // humidity
-                Adafruit_BME280::FILTER_OFF   );
- 
+                  Adafruit_BME280::SAMPLING_X1, // temperature
+                  Adafruit_BME280::SAMPLING_X1, // pressure
+                  Adafruit_BME280::SAMPLING_X1, // humidity
+                  Adafruit_BME280::FILTER_OFF   );
+
   measurementEvent();            //get all data from the different sensors
-  
+
   //*******************SPIFFS operations***************************************************************
 
   ReadFromSPIFFS();              //read stored values and update data if more recent data is available
@@ -258,39 +264,39 @@ void setup() {
   Serial.print("Timestamp difference: ");
   Serial.println(current_timestamp - saved_timestamp);
 
-  if (current_timestamp - saved_timestamp > 21600){    // last save older than 6 hours -> re-initialize values
+  if (current_timestamp - saved_timestamp > 21600) {   // last save older than 6 hours -> re-initialize values
     FirstTimeRun();
   }
-  else if (current_timestamp - saved_timestamp > 1800){ // it is time for pressure update (1800 sec = 30 min)
-    
-    for (int i = 11; i >= 1; i = i -1) {
-      pressure_value[i] = pressure_value[i-1];          // shifting values one to the right
+  else if (current_timestamp - saved_timestamp > 1800) { // it is time for pressure update (1800 sec = 30 min)
+
+    for (int i = 11; i >= 1; i = i - 1) {
+      pressure_value[i] = pressure_value[i - 1];        // shifting values one to the right
     }
-   
-  pressure_value[0] = rel_pressure_rounded;             // updating with acutal rel pressure (newest value)
-  
-  if (accuracy < 12) {
-    accuracy = accuracy + 1;                            // one value more -> accuracy rises (up to 12 = 100%)
+
+    pressure_value[0] = rel_pressure_rounded;             // updating with acutal rel pressure (newest value)
+
+    if (accuracy < 12) {
+      accuracy = accuracy + 1;                            // one value more -> accuracy rises (up to 12 = 100%)
     }
     WriteToSPIFFS(current_timestamp);                   // update timestamp on storage
   }
-  else {         
+  else {
     WriteToSPIFFS(saved_timestamp);                     // do not update timestamp on storage
   }
 
-//**************************Calculate Zambretti Forecast*******************************************
-  
+  //**************************Calculate Zambretti Forecast*******************************************
+
   int accuracy_in_percent = accuracy * 94 / 12;        // 94% is the max predicion accuracy of Zambretti
   if ( volt > 3.4 ) {                                  // check if batt is still ok
     ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
     forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
     pressure_in_words = TEXT_AIR_PRESSURE;
     accuracy_in_words = TEXT_ZAMBRETTI_ACCURACY;
-    }
+  }
   else {
     ZambrettisWords = ZambrettiSays('0');              // send Message that battery is empty
   }
-  
+
   Serial.println("********************************************************");
   Serial.print(forecast_in_words);
   Serial.print(": ");
@@ -302,7 +308,7 @@ void setup() {
   Serial.print(": ");
   Serial.print(accuracy_in_percent);
   Serial.println("%");
-  if (accuracy < 12){
+  if (accuracy < 12) {
     Serial.println("Reason: Not enough weather data yet.");
     Serial.print("We need ");
     Serial.print((12 - accuracy) / 2);
@@ -310,9 +316,9 @@ void setup() {
   }
   Serial.println("********************************************************");
 
-//**************************Sending Data to Blynk and ThingSpeak*********************************
+  //**************************Sending Data to Blynk and ThingSpeak*********************************
   // code block for uploading data to BLYNK App
-  
+
   if (App1 == "BLYNK") {
     Blynk.virtualWrite(0, adjusted_temp);            // virtual pin 0
     Blynk.virtualWrite(1, adjusted_humi);            // virtual pin 1
@@ -328,48 +334,32 @@ void setup() {
     Serial.println("Data written to Blink ...");
   }
 
- //*******************************************************************************
- // code block for uploading data to Thingspeak website
- 
-  if (App2 == "THINGSPEAK") {
-  // Send data to ThingSpeak 
-    WiFiClient client;  
-    if (client.connect(server,80)) {
-      Serial.println("Connect to ThingSpeak - OK");
+  //*******************************************************************************
+  // code block for uploading data to Thingspeak website
 
-      String postStr = "";
-      postStr+="GET /update?api_key=";
-      postStr+=api_key;   
-      postStr+="&field1=";
-      postStr+=String(rel_pressure_rounded);
-      postStr+="&field2=";
-      postStr+=String(adjusted_temp);
-      postStr+="&field3=";
-      postStr+=String(adjusted_humi);
-      postStr+="&field4=";
-      postStr+=String(volt);
-      postStr+="&field5=";
-      postStr+=String(measured_pres);  
-      postStr+="&field6=";
-      postStr+=String(DewpointTemperature);  
-      postStr+="&field7=";
-      postStr+=String(HeatIndex);
-      postStr+="&status=";
-      postStr+=String(forecast_in_words + ": " + ZambrettisWords + ". " + pressure_in_words + " " + trend_in_words + ". " + accuracy_in_words + " " + accuracy_in_percent + "%25."); // Percentage sign needs to be URL-encoded
-      postStr+=" HTTP/1.1\r\nHost: a.c.d\r\nConnection: close\r\n\r\n";
-      postStr+="";
-      client.print(postStr);
-      Serial.println("Data written to Thingspeak ...");
+  if (App2 == "THINGSPEAK") {
+
+    ThingSpeak.setField(1, rel_pressure_rounded);
+    ThingSpeak.setField(2, adjusted_temp);
+    ThingSpeak.setField(3, adjusted_humi);
+    ThingSpeak.setField(4, volt);
+    ThingSpeak.setField(5, measured_pres);
+    ThingSpeak.setField(6, DewpointTemperature);
+    ThingSpeak.setField(7, HeatIndex);
+    ThingSpeak.setStatus(String(ZambrettisWords + ", " + trend_in_words));
+
+    int feedback = ThingSpeak.writeFields(ts_ch_id, ts_api_key);
+    if (feedback == 200) {
+      Serial.println("Writing to Thingspeak was successful!");
     }
-    while(client.available()){
-      String line = client.readStringUntil('\r');
-      Serial.print(line);
+    else {
+      Serial.println("Problem updating Thingspeak. HTTP error code " + String(feedback));
     }
   }
   if (volt > 3.3) {          //check if batt still ok, if yes
     goToSleep(sleepTimeMin); //go for a nap
   }
-  else{                      //if not,
+  else {                     //if not,
     goToSleep(0);            //hybernate because batt is empty
   }
 } // end of void setup()
@@ -377,11 +367,11 @@ void setup() {
 void loop() {                //loop is not used
 } // end of void loop()
 
-void measurementEvent() { 
-    
-  //Measures absolute Pressure, Temperature, Humidity, Voltage, calculate relative pressure, 
+void measurementEvent() {
+
+  //Measures absolute Pressure, Temperature, Humidity, Voltage, calculate relative pressure,
   //Dewpoint, Dewpoint Spread, Heat Index
-  
+
   bme.takeForcedMeasurement();
 
   // Get temperature
@@ -390,8 +380,8 @@ void measurementEvent() {
   Serial.print("Temp: ");
   Serial.print(measured_temp);
   Serial.print("°C; ");
- 
- // Get humidity
+
+  // Get humidity
   measured_humi = bme.readHumidity();
   // print on serial monitor
   Serial.print("Humidity: ");
@@ -406,17 +396,17 @@ void measurementEvent() {
   Serial.print("hPa; ");
 
   // Calculate and print relative pressure
-  SLpressure_hPa = (((measured_pres * 100.0)/pow((1-((float)(ELEVATION))/44330), 5.255))/100.0);
-  rel_pressure_rounded=(int)(SLpressure_hPa+.5);
+  SLpressure_hPa = (((measured_pres * 100.0) / pow((1 - ((float)(ELEVATION)) / 44330), 5.255)) / 100.0);
+  rel_pressure_rounded = (int)(SLpressure_hPa + .5);
   // print on serial monitor
   Serial.print("Pressure rel: ");
   Serial.print(rel_pressure_rounded);
   Serial.print("hPa; ");
 
   // Calculate dewpoint
-  double a = 17.271;
-  double b = 237.7;
-  double tempcalc = (a * measured_temp) / (b + measured_temp) + log(measured_humi*0.01);
+  float a = 17.271;
+  float b = 237.7;
+  float tempcalc = (a * measured_temp) / (b + measured_temp) + log(measured_humi * 0.01);
   DewpointTemperature = (b * tempcalc) / (a - tempcalc);
   Serial.print("Dewpoint: ");
   Serial.print(DewpointTemperature);
@@ -445,15 +435,15 @@ void measurementEvent() {
 
   // Calculate HI (heatindex in °C) --> HI starts working above 26,7 °C
   if (measured_temp > 26.7) {
-  double c1 = -8.784, c2 = 1.611, c3 = 2.338, c4 = -0.146, c5= -1.230e-2, c6=-1.642e-2, c7=2.211e-3, c8=7.254e-4, c9=-2.582e-6  ;
-  double T = measured_temp;
-  double R = measured_humi;
-  
-  double A = (( c5 * T) + c2) * T + c1;
-  double B = ((c7 * T) + c4) * T + c3;
-  double C = ((c9 * T) + c8) * T + c6;
-  HeatIndex = (C * R + B) * R + A; 
-  } 
+    double c1 = -8.784, c2 = 1.611, c3 = 2.338, c4 = -0.146, c5 = -1.230e-2, c6 = -1.642e-2, c7 = 2.211e-3, c8 = 7.254e-4, c9 = -2.582e-6  ;
+    double T = measured_temp;
+    double R = measured_humi;
+
+    double A = (( c5 * T) + c2) * T + c1;
+    double B = ((c7 * T) + c4) * T + c3;
+    double C = ((c9 * T) + c8) * T + c6;
+    HeatIndex = (C * R + B) * R + A;
+  }
   else {
     HeatIndex = measured_temp;
     Serial.println("Not warm enough (less than 26.7 °C) for Heatindex");
@@ -461,13 +451,13 @@ void measurementEvent() {
   Serial.print("HeatIndex: ");
   Serial.print(HeatIndex);
   Serial.print("°C; ");
- 
+
 } // end of void measurementEvent()
 
-int CalculateTrend(){
+int CalculateTrend() {
   int trend;                                    // -1 falling; 0 steady; 1 raising
   Serial.println("---> Calculating trend");
-  
+
   //--> giving the most recent pressure reads more weight
   pressure_difference[0] = (pressure_value[0] - pressure_value[1])   * 1.5;
   pressure_difference[1] = (pressure_value[0] - pressure_value[2]);
@@ -480,26 +470,27 @@ int CalculateTrend(){
   pressure_difference[8] = (pressure_value[0] - pressure_value[9])   / 4.5;
   pressure_difference[9] = (pressure_value[0] - pressure_value[10])  / 5;
   pressure_difference[10] = (pressure_value[0] - pressure_value[11]) / 5.5;
-  
+
   //--> calculating the average and storing it into [11]
   pressure_difference[11] = (  pressure_difference[0]
-                             + pressure_difference[1]
-                             + pressure_difference[2]
-                             + pressure_difference[3]
-                             + pressure_difference[4]
-                             + pressure_difference[5]
-                             + pressure_difference[6]
-                             + pressure_difference[7]
-                             + pressure_difference[8]
-                             + pressure_difference[9]
-                             + pressure_difference[10]) / 11;
-  
+                               + pressure_difference[1]
+                               + pressure_difference[2]
+                               + pressure_difference[3]
+                               + pressure_difference[4]
+                               + pressure_difference[5]
+                               + pressure_difference[6]
+                               + pressure_difference[7]
+                               + pressure_difference[8]
+                               + pressure_difference[9]
+                               + pressure_difference[10]) / 11;
+
   Serial.print("Current trend: ");
   Serial.println(pressure_difference[11]);
 
   if      (pressure_difference[11] > 3.5) {
     trend_in_words = TEXT_RISING_FAST;
-    trend = 1;}
+    trend = 1;
+  }
   else if (pressure_difference[11] > 1.5   && pressure_difference[11] <= 3.5)  {
     trend_in_words = TEXT_RISING;
     trend = 1;
@@ -603,37 +594,37 @@ char ZambrettiLetter() {
   return z_letter;
 }
 
-String ZambrettiSays(char code){
+String ZambrettiSays(char code) {
   String zambrettis_words = "";
   switch (code) {
-  case 'A': zambrettis_words = TEXT_ZAMBRETTI_A; break;  //see Tranlation.h
-  case 'B': zambrettis_words = TEXT_ZAMBRETTI_B; break;
-  case 'C': zambrettis_words = TEXT_ZAMBRETTI_C; break;
-  case 'D': zambrettis_words = TEXT_ZAMBRETTI_D; break;
-  case 'E': zambrettis_words = TEXT_ZAMBRETTI_E; break;
-  case 'F': zambrettis_words = TEXT_ZAMBRETTI_F; break;
-  case 'G': zambrettis_words = TEXT_ZAMBRETTI_G; break;
-  case 'H': zambrettis_words = TEXT_ZAMBRETTI_H; break;
-  case 'I': zambrettis_words = TEXT_ZAMBRETTI_I; break;
-  case 'J': zambrettis_words = TEXT_ZAMBRETTI_J; break;
-  case 'K': zambrettis_words = TEXT_ZAMBRETTI_K; break;
-  case 'L': zambrettis_words = TEXT_ZAMBRETTI_L; break;
-  case 'M': zambrettis_words = TEXT_ZAMBRETTI_M; break;
-  case 'N': zambrettis_words = TEXT_ZAMBRETTI_N; break;
-  case 'O': zambrettis_words = TEXT_ZAMBRETTI_O; break;
-  case 'P': zambrettis_words = TEXT_ZAMBRETTI_P; break; 
-  case 'Q': zambrettis_words = TEXT_ZAMBRETTI_Q; break;
-  case 'R': zambrettis_words = TEXT_ZAMBRETTI_R; break;
-  case 'S': zambrettis_words = TEXT_ZAMBRETTI_S; break;
-  case 'T': zambrettis_words = TEXT_ZAMBRETTI_T; break;
-  case 'U': zambrettis_words = TEXT_ZAMBRETTI_U; break;
-  case 'V': zambrettis_words = TEXT_ZAMBRETTI_V; break;
-  case 'W': zambrettis_words = TEXT_ZAMBRETTI_W; break;
-  case 'X': zambrettis_words = TEXT_ZAMBRETTI_X; break;
-  case 'Y': zambrettis_words = TEXT_ZAMBRETTI_Y; break;
-  case 'Z': zambrettis_words = TEXT_ZAMBRETTI_Z; break;
-  case '0': zambrettis_words = TEXT_ZAMBRETTI_0; break;
-   default: zambrettis_words = TEXT_ZAMBRETTI_DEFAULT; break;
+    case 'A': zambrettis_words = TEXT_ZAMBRETTI_A; break;  //see Tranlation.h
+    case 'B': zambrettis_words = TEXT_ZAMBRETTI_B; break;
+    case 'C': zambrettis_words = TEXT_ZAMBRETTI_C; break;
+    case 'D': zambrettis_words = TEXT_ZAMBRETTI_D; break;
+    case 'E': zambrettis_words = TEXT_ZAMBRETTI_E; break;
+    case 'F': zambrettis_words = TEXT_ZAMBRETTI_F; break;
+    case 'G': zambrettis_words = TEXT_ZAMBRETTI_G; break;
+    case 'H': zambrettis_words = TEXT_ZAMBRETTI_H; break;
+    case 'I': zambrettis_words = TEXT_ZAMBRETTI_I; break;
+    case 'J': zambrettis_words = TEXT_ZAMBRETTI_J; break;
+    case 'K': zambrettis_words = TEXT_ZAMBRETTI_K; break;
+    case 'L': zambrettis_words = TEXT_ZAMBRETTI_L; break;
+    case 'M': zambrettis_words = TEXT_ZAMBRETTI_M; break;
+    case 'N': zambrettis_words = TEXT_ZAMBRETTI_N; break;
+    case 'O': zambrettis_words = TEXT_ZAMBRETTI_O; break;
+    case 'P': zambrettis_words = TEXT_ZAMBRETTI_P; break;
+    case 'Q': zambrettis_words = TEXT_ZAMBRETTI_Q; break;
+    case 'R': zambrettis_words = TEXT_ZAMBRETTI_R; break;
+    case 'S': zambrettis_words = TEXT_ZAMBRETTI_S; break;
+    case 'T': zambrettis_words = TEXT_ZAMBRETTI_T; break;
+    case 'U': zambrettis_words = TEXT_ZAMBRETTI_U; break;
+    case 'V': zambrettis_words = TEXT_ZAMBRETTI_V; break;
+    case 'W': zambrettis_words = TEXT_ZAMBRETTI_W; break;
+    case 'X': zambrettis_words = TEXT_ZAMBRETTI_X; break;
+    case 'Y': zambrettis_words = TEXT_ZAMBRETTI_Y; break;
+    case 'Z': zambrettis_words = TEXT_ZAMBRETTI_Z; break;
+    case '0': zambrettis_words = TEXT_ZAMBRETTI_0; break;
+    default: zambrettis_words = TEXT_ZAMBRETTI_DEFAULT; break;
   }
   return zambrettis_words;
 }
@@ -645,16 +636,16 @@ void ReadFromSPIFFS() {
     Serial.println("Failed to open file");
     FirstTimeRun();                                   // no file there -> initializing
   }
-  
+
   Serial.println("---> Now reading from SPIFFS");
-  
+
   String temp_data;
-  
-  temp_data = myDataFile.readStringUntil('\n');  
+
+  temp_data = myDataFile.readStringUntil('\n');
   saved_timestamp = temp_data.toInt();
   Serial.print("Timestamp from SPIFFS: ");  Serial.println(saved_timestamp);
-  
-  temp_data = myDataFile.readStringUntil('\n');  
+
+  temp_data = myDataFile.readStringUntil('\n');
   accuracy = temp_data.toInt();
   Serial.print("Accuracy value read from SPIFFS: ");  Serial.println(accuracy);
 
@@ -675,21 +666,21 @@ void WriteToSPIFFS(int write_timestamp) {
   if (!myDataFile) {
     Serial.println("Failed to open file");
   }
-  
+
   Serial.println("---> Now writing to SPIFFS");
-  
+
   myDataFile.println(write_timestamp);                 // Saving timestamp to /data.txt
   myDataFile.println(accuracy);                        // Saving accuracy value to /data.txt
-  
+
   for ( int i = 0; i <= 11; i++) {
     myDataFile.println(pressure_value[i]);             // Filling pressure array with updated values
   }
   myDataFile.close();
-  
+
   Serial.println("File written. Now reading file again.");
   myDataFile = SPIFFS.open(filename, "r");             // Open file for reading
-  Serial.print("Found in /data.txt = "); 
-  while (myDataFile.available()) { 
+  Serial.print("Found in /data.txt = ");
+  while (myDataFile.available()) {
     Serial.print(myDataFile.readStringUntil('\n'));
     Serial.print("; ");
   }
@@ -697,7 +688,7 @@ void WriteToSPIFFS(int write_timestamp) {
   myDataFile.close();
 }
 
-void FirstTimeRun(){
+void FirstTimeRun() {
   Serial.println("---> Starting initializing process.");
   accuracy = 1;
   char filename [] = "/data.txt";
@@ -719,7 +710,7 @@ void FirstTimeRun(){
 }
 
 void goToSleep(unsigned int sleepmin) {
-  
+
   Serial.println("INFO: Closing the Wifi connection");
   WiFi.disconnect();
 
@@ -728,7 +719,7 @@ void goToSleep(unsigned int sleepmin) {
     delay(10);
   }
   delay(50);
-  
+
   Serial.print ("Going to sleep now for ");
   Serial.print (sleepmin);
   Serial.print (" Minute(s).");
