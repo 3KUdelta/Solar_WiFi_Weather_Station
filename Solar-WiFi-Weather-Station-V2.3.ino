@@ -73,6 +73,7 @@
   updated 27/05/20 to v2.34
   - added August-Roche-Magnus approximation to automatically adjust humidity with temperature corrections
 
+  updated 30/08/22 to v2.35
   corrected Thingspeak issue v2.35
 
 
