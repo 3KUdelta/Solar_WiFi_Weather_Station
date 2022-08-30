@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.34
+  Project Name : Solar Powered WiFi Weather Station V2.35
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
@@ -60,6 +60,8 @@
   -corrected bug in adjustments for summer/winter
  updated 27/05/20 to v2.34
   - added August-Roche-Magnus approximation to automatically adjust humidity with temperature corrections
+ updated 30/08/22 to v2.35
+  -corrected Thingspeak communication issue
   
 ////  Features :  /////////////////////////////////////////////////////////////////////////////////////////////////////////////                                                                                                                   
 // 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak and to any MQTT broker
@@ -88,6 +90,7 @@
 #include <EasyNTPClient.h>       //https://github.com/aharshac/EasyNTPClient
 #include <TimeLib.h>             //https://github.com/PaulStoffregen/Time.git
 #include <PubSubClient.h>        // For MQTT (in this case publishing only)
+#include "ThingSpeak.h"
 
 Adafruit_BME280 bme;             // I2C
 WiFiUDP udp;
@@ -102,7 +105,7 @@ float SLpressure_hPa;               // needed for rel pressure calculation
 float HeatIndex;                    // Heat Index in °C
 float volt;
 int rel_pressure_rounded;
-double DewpointTemperature;
+float DewpointTemperature;
 float DewPointSpread;               // Difference between actual temperature and dewpoint
 
 // FORECAST CALCULATION
@@ -130,7 +133,7 @@ void setup() {
   
   Serial.begin(115200);
   Serial.println();
-  Serial.println("Start of SolarWiFiWeatherStation V2.33");
+  Serial.println("Start of SolarWiFiWeatherStation V2.35");
 
   //******Battery Voltage Monitoring (first thing to do: is battery still ok?)***********
   
@@ -170,6 +173,9 @@ void setup() {
   if (App1 == "BLYNK") {        // for posting data to Blynk App
     Blynk.begin(auth, ssid, pass);
   } 
+  if (App2 == "THINGSPEAK") {
+    ThingSpeak.begin(client);  // Initialize ThingSpeak
+  }
   
   connect_to_MQTT();            // connecting to MQTT broker
 
@@ -317,40 +323,25 @@ void setup() {
   // code block for uploading data to Thingspeak website
   
   if (App2 == "THINGSPEAK") {
-  // Send data to ThingSpeak 
-    WiFiClient client;  
-    if (client.connect(server,80)) {
-      Serial.println("Connect to ThingSpeak - OK"); 
 
-      String postStr = "";
-      postStr+="GET /update?api_key=";
-      postStr+=api_key;   
-      postStr+="&field1=";
-      postStr+=String(rel_pressure_rounded);
-      postStr+="&field2=";
-      postStr+=String(adjusted_temp);
-      postStr+="&field3=";
-      postStr+=String(adjusted_humi);
-      postStr+="&field4=";
-      postStr+=String(volt);
-      postStr+="&field5=";
-      postStr+=String(measured_pres);  
-      postStr+="&field6=";
-      postStr+=String(DewpointTemperature);  
-      postStr+="&field7=";
-      postStr+=String(HeatIndex);
-      postStr+="&status=";
-      postStr+=String(forecast_in_words + ": " + ZambrettisWords + ". " + pressure_in_words + " " + trend_in_words + ". " + accuracy_in_words + " " + accuracy_in_percent + "%25."); // Percentage sign needs to be URL-encoded
-      postStr+=" HTTP/1.1\r\nHost: a.c.d\r\nConnection: close\r\n\r\n";
-      postStr+="";
-      client.print(postStr);
-      Serial.println("Data written to Thingspeak ...");
+    ThingSpeak.setField(1, rel_pressure_rounded);
+    ThingSpeak.setField(2, adjusted_temp);
+    ThingSpeak.setField(3, adjusted_humi);
+    ThingSpeak.setField(4, volt);
+    ThingSpeak.setField(5, measured_pres);
+    ThingSpeak.setField(6, DewpointTemperature);
+    ThingSpeak.setField(7, HeatIndex);
+    ThingSpeak.setStatus(String(ZambrettisWords + ", " + trend_in_words));
+
+    int feedback = ThingSpeak.writeFields(ts_ch_id, ts_api_key);
+    if (feedback == 200) {
+      Serial.println("Writing to Thingspeak was successful!");
     }
-    while(client.available()){
-      String line = client.readStringUntil('\r');
-      Serial.print(line);
+    else {
+      Serial.println("Problem updating Thingspeak. HTTP error code " + String(feedback));
     }
   }
+
   //*******************************************************************************
   // code block for publishing all data to MQTT
   
@@ -472,9 +463,9 @@ void measurementEvent() {
   Serial.print("hPa; ");
 
   // Calculate dewpoint
-  double a = 17.271;
-  double b = 237.7;
-  double tempcalc = (a * measured_temp) / (b + measured_temp) + log(measured_humi*0.01);
+  float a = 17.271;
+  float b = 237.7;
+  float tempcalc = (a * measured_temp) / (b + measured_temp) + log(measured_humi*0.01);
   DewpointTemperature = (b * tempcalc) / (a - tempcalc);
   Serial.print("Dewpoint: ");
   Serial.print(DewpointTemperature);
