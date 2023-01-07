@@ -6,7 +6,7 @@ Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, 
 Major changes:
 - simplified, restructured code (used Adafruit libraries for BME280 instead, sorry for this Keith)
 - added relative pressure, dewpoint, dewpoint spread and heatindex calculations
-- allow Blynk (**deprecated by Dec 31, 2022**), ThingSpeak and MQTT data transmission
+- allow Blynk (** UPDATED PLEASE SEE CHANGES **), ThingSpeak and MQTT data transmission
 - redesigned box (simplified printing, less plastic usage, full snap-in)
 - available languages (a big thank you to the contributors!)
   - English
@@ -46,6 +46,9 @@ Changes in V2.34
 
 Changes in V2.35
 - corrected TingSpeak communication changes (needs now Channel ID and KEY)
+
+Latest Changes
+- updated Blynk
 
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
