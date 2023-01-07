@@ -74,7 +74,10 @@
   - added August-Roche-Magnus approximation to automatically adjust humidity with temperature corrections
 
   updated 30/08/22 to v2.35
-  corrected Thingspeak issue v2.35
+  - corrected Thingspeak issue v2.35
+  
+  updated 07/01/23
+  - updated Blynk settings (if you were using Blynk legacy, please switch to new Blynk)
 
 
   ////  Features :  //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -321,17 +324,17 @@ void setup() {
   // code block for uploading data to BLYNK App
 
   if (App1 == "BLYNK") {
-    Blynk.virtualWrite(0, adjusted_temp);            // virtual pin 0
-    Blynk.virtualWrite(1, adjusted_humi);            // virtual pin 1
-    Blynk.virtualWrite(2, measured_pres);            // virtual pin 2
-    Blynk.virtualWrite(3, rel_pressure_rounded);     // virtual pin 3
-    Blynk.virtualWrite(4, volt);                     // virtual pin 4
-    Blynk.virtualWrite(5, DewpointTemperature);      // virtual pin 5
-    Blynk.virtualWrite(6, HeatIndex);                // virtual pin 6
-    Blynk.virtualWrite(7, ZambrettisWords);          // virtual pin 7
-    Blynk.virtualWrite(8, accuracy_in_percent);      // virtual pin 8
-    Blynk.virtualWrite(9, trend_in_words);           // virtual pin 9
-    Blynk.virtualWrite(10, DewPointSpread);          // virtual pin 10
+    Blynk.virtualWrite(V0, adjusted_temp);            // virtual pin 0
+    Blynk.virtualWrite(V1, adjusted_humi);            // virtual pin 1
+    Blynk.virtualWrite(V2, measured_pres);            // virtual pin 2
+    Blynk.virtualWrite(V3, rel_pressure_rounded);     // virtual pin 3
+    Blynk.virtualWrite(V4, volt);                     // virtual pin 4
+    Blynk.virtualWrite(V5, DewpointTemperature);      // virtual pin 5
+    Blynk.virtualWrite(V6, HeatIndex);                // virtual pin 6
+    Blynk.virtualWrite(V7, ZambrettisWords);          // virtual pin 7
+    Blynk.virtualWrite(V8, accuracy_in_percent);      // virtual pin 8
+    Blynk.virtualWrite(V9, trend_in_words);           // virtual pin 9
+    Blynk.virtualWrite(V10, DewPointSpread);          // virtual pin 10
     Serial.println("Data written to Blink ...");
   }
 
