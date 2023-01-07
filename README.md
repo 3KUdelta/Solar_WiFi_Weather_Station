@@ -6,7 +6,7 @@ Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, 
 Major changes:
 - simplified, restructured code (used Adafruit libraries for BME280 instead, sorry for this Keith)
 - added relative pressure, dewpoint, dewpoint spread and heatindex calculations
-- allow Blynk (** UPDATED PLEASE SEE CHANGES **), ThingSpeak and MQTT data transmission
+- allow Blynk (** UPDATED, PLEASE SEE CHANGES **), ThingSpeak and MQTT data transmission
 - redesigned box (simplified printing, less plastic usage, full snap-in)
 - available languages (a big thank you to the contributors!)
   - English
@@ -52,7 +52,13 @@ Latest Changes
 
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
-## BLYNK legacy (used in this code) will get deprecated! Legacy server shutdown - December 31, 2022 (https://blynk.io/blog/what-will-happen-to-the-legacy-blynk-platform). I do not plan to update to new Blynk - maybe someone here in the community?
+## BLYNK UPDATE to new Version. Please use new Blynk:
+1. Create new Blynk account (https://blynk.io) Top right.
+2. Add new template (see example below)
+3. Add new device using your new template
+4. Load Blynk App for your mobile device
+5. Add widgets as before
+6. done!
 
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
