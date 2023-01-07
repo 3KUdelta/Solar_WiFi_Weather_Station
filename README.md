@@ -3,6 +3,14 @@ Based on the work of Open Green Energy.
 https://www.instructables.com/id/Solar-Powered-WiFi-Weather-Station-V20/
 Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, gentlemen!
 
+## BLYNK UPDATE to new Version. Please use new Blynk:
+1. Create new Blynk account (https://blynk.io) Top right.
+2. Add new template (see example below)
+3. Add new device using your new template
+4. Load Blynk App for your mobile device
+5. Add widgets as before
+6. done!
+
 Major changes:
 - simplified, restructured code (used Adafruit libraries for BME280 instead, sorry for this Keith)
 - added relative pressure, dewpoint, dewpoint spread and heatindex calculations
@@ -52,15 +60,9 @@ Latest Changes
 
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
-## BLYNK UPDATE to new Version. Please use new Blynk:
-1. Create new Blynk account (https://blynk.io) Top right.
-2. Add new template (see example below)
-3. Add new device using your new template
-4. Load Blynk App for your mobile device
-5. Add widgets as before
-6. done!
-
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
+
+[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/Blynk_Template_Definition.png)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
 Showing the data on a LED display: https://github.com/3KUdelta/MDparola_MQTT_monitor
 [![LED matrix MQTT monitor](https://github.com/3KUdelta/MDparola_MQTT_monitor/blob/master/pictures/IMG_3180.JPG)](https://github.com/3KUdelta/MDparola_MQTT_monitor)
