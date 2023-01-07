@@ -10,17 +10,18 @@
 const String App1 = "BLYNK";         // empty string if not applicable -> "" else "BLYNK"
 const String App2 = "THINGSPEAK";    // empty string if not applicable -> "" else "THINGSPEAK"
 
-
 /****** Blink or ThingSpeak Settings ****************************************/
 
-char auth[] = ""; // Blynk Auth Token
+#define BLYNK_TEMPLATE_ID "YOUR_BLYNK_TEMPL_ID"
+#define BLYNK_DEVICE_NAME "Solar Weather Station"
+#define BLYNK_AUTH_TOKEN "YOUR_BLYNK_TEMPL_ID"
+char auth[] = BLYNK_AUTH_TOKEN;
 
 char ssid[] = "";                       // WiFi Router ssid
 char pass[] = "";                       // WiFi Router password
 
 unsigned long ts_ch_id = 000000;                  // Thingspeak Channel ID
 const char* ts_api_key = "";      // API write key 
-
 
 /****** MQTT Settings ********************************************************/
 
