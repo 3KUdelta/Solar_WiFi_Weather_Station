@@ -3,7 +3,8 @@ Based on the work of Open Green Energy.
 https://www.instructables.com/id/Solar-Powered-WiFi-Weather-Station-V20/
 Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, gentlemen!
 
-## BLYNK UPDATE to new Version. Please use new Blynk:
+## BLYNK UPDATE! Move now to new Version!
+Running Blynk legacy will drain your battery and your device will stop working. Please update to new Blynk (free version works very well).
 1. Create new Blynk account (https://blynk.io) Top right.
 2. Add new template (see example below)
 3. Add new device using your new template
