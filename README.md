@@ -12,6 +12,7 @@ Running Blynk legacy will drain your battery and your device will stop working. 
 5. Add widgets as before
 6. done!
 
+## Zambretti Weather Station
 Major changes:
 - simplified, restructured code (used Adafruit libraries for BME280 instead, sorry for this Keith)
 - added relative pressure, dewpoint, dewpoint spread and heatindex calculations
@@ -57,7 +58,7 @@ Changes in V2.35
 - corrected TingSpeak communication changes (needs now Channel ID and KEY)
 
 Latest Changes
-- updated Blynk
+- updated Blynk (simple code changes - needs more to do on the Blynk server side)
 
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
