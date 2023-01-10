@@ -64,6 +64,9 @@ Print the box yourself: https://www.thingiverse.com/thing:3551386
 
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
+New Blynk App Example (free widgets)
+[![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/New_Blynk_App.jpeg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
+
 Blynk template definition
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/Blynk_Template_Definition.png)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
 
