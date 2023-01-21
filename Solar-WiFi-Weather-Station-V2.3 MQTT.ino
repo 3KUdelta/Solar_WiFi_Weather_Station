@@ -176,7 +176,7 @@ void setup() {
     Blynk.begin(auth, ssid, pass);
   } 
   if (App2 == "THINGSPEAK") {
-    ThingSpeak.begin(client);  // Initialize ThingSpeak
+    ThingSpeak.begin(espClient);  // Initialize ThingSpeak
   }
   
   connect_to_MQTT();            // connecting to MQTT broker
