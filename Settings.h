@@ -29,7 +29,7 @@ const char* mqtt_server = "192.xxx.xxx.xx";       // MQTT Server (broker) addres
 
 /****** Additional Settings **************************************************/
 
-#define LANGUAGE 'DE'                // either 'DE' for German or 'EN' for English
+String LANGUAGE = "DE";              // either 'DE' for German or 'EN' for English
 
 #define TEMP_CORR (-1)               // Manual correction of temp sensor
 #define ELEVATION (130)              // Enter your elevation in m ASL to calculate rel pressure (ASL/QNH) at your place
