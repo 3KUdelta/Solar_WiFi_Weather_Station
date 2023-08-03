@@ -13,7 +13,7 @@ const String App2 = "THINGSPEAK";    // empty string if not applicable -> "" els
 /****** Blink or ThingSpeak Settings ****************************************/
 
 #define BLYNK_TEMPLATE_ID "YOUR_BLYNK_TEMPL_ID"
-#define BLYNK_DEVICE_NAME "Solar Weather Station"
+#define BLYNK_TEMPLATE_NAME "Solar Weather Station"
 #define BLYNK_AUTH_TOKEN "YOUR_BLYNK_TEMPL_ID"
 char auth[] = BLYNK_AUTH_TOKEN;
 
