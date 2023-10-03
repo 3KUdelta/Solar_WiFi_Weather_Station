@@ -57,9 +57,13 @@ Changes in V2.34
 Changes in V2.35
 - corrected TingSpeak communication changes (needs now Channel ID and KEY)
 
-Latest Changes
+Changes in V2.4
 - updated Blynk (simple code changes - needs more to do on the Blynk server side)
-
+- reformatted data into json
+- decide in settings.h if you want MQTT or not
+- non-blocking MQTT connector if broker is not available
+- minor bug fixes
+  
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
 [![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/IMG_2951.jpg)](https://github.com/3KUdelta/Solar_WiFi_Weather_Station)
