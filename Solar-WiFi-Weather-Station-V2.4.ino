@@ -162,6 +162,8 @@ void setup() {
   Serial.print(", Version ");
   Serial.println(Version);
 
+  translate();                     // assign translation variables
+  
   client.setBufferSize(512);       // Increasing PubSubClient
 
   //******Battery Voltage Monitoring (first thing to do: is battery still ok?)***********
