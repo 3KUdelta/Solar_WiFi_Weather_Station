@@ -64,7 +64,7 @@ Changes in V2.4
 - non-blocking MQTT connector if broker is not available
 - added one-wire 18d20 temperature sensor (better temperature buffering in sunshine - more lazy) to P4 solder pull-up resistor 4.7 kOhm between signal and V+
 - minor bug fixes
-- changed translation to summer and winter messages (unfortunately, only german and english translation for this version available) If you still need      different languages, use Version 2.3 or translate into your language in translation24.h
+- changed translation to summer and winter messages (unfortunately, only german and english translation for this version available) If you still need      different languages please translate into your language in translation24.h
   
 Print the box yourself: https://www.thingiverse.com/thing:3551386
 
