@@ -60,7 +60,7 @@ Changes in V2.35
 Changes in V2.4
 - updated Blynk (simple code changes - needs more to do on the Blynk server side)
 - reformatted data into json
-- decide in settings.h if you want MQTT or not
+- decide in settings24.h if you want MQTT or not
 - non-blocking MQTT connector if broker is not available
 - added one-wire 18d20 temperature sensor (better temperature buffering in sunshine - more lazy) to P4 solder pull-up resistor 4.7 kOhm between signal and V+
 - minor bug fixes
