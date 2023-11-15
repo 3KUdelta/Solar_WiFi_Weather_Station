@@ -56,6 +56,8 @@ Changes in V2.34
 
 Changes in V2.35
 - corrected TingSpeak communication changes (needs now Channel ID and KEY)
+- moved V2.35 into history folder - will not maintained by me anymore
+  (pull requests for this version are still welcome)
 
 Changes in V2.4
 - updated Blynk (simple code changes - needs more to do on the Blynk server side)
