@@ -97,7 +97,7 @@
  *                                                 *
  **************************************************/
 
-#include "Settings_mst.h"
+#include "Settings24.h"
 #include "Translation24.h"
 #include <OneWire.h>               // for temperature sensor 18d20
 #include <DallasTemperature.h>     // for temperature sensor 18d20
