@@ -7,9 +7,10 @@ Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, 
 Dear Weather Station fans. For the ones who are using their Weather Station already from the start (we started 5 years ago), the flash memory is probably getting at its end. Let's do a quick calculation: 
 5 years = 1'825 days. As we are doing 144 read/write cycles per day (all 10 Minutes) this results in 262'800 read/write clycles by now. Flash memory has a finite lifetime of about 100,000 write cycles (source: https://learn.adafruit.com/memories-of-an-arduino/arduino-memories#). Here we go. This is exactly what happened to my station. A flash write error causes the ESP8266 to loop for ever and sucking the battery empty. I discovered this just recently. 
 
-Code has been changed in order to reduce writing to flash memory by a factor of 3. Updating is highly recommended.
+Easy fix: 
 
-Easy fix: Get a new D1 Pro CH9102 16M (e.g. https://www.aliexpress.com/item/1005006018009983.html) for less than a dollar incl. shipment.
+Code has been changed in order to reduce writing to flash memory by a factor of 3. Updating is highly recommended.
+Get a new ESP8266 D1 mini Pro CH9102 16M (e.g. https://www.aliexpress.com/item/1005006018009983.html) for roughly a dollar incl. shipment.
 
 ## BLYNK UPDATE! Move now to new Version!
 Running Blynk legacy will drain your battery and your device will stop working. Please update to new Blynk (free version works very well).
