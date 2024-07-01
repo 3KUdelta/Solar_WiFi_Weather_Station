@@ -3,8 +3,8 @@ Based on the work of Open Green Energy.
 https://www.instructables.com/id/Solar-Powered-WiFi-Weather-Station-V20/
 Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, gentlemen!
 
-## FLASH Memory at the end of it's lifespan!
-Dear Weather Station fans. For the ones who are using their Weather Station already from the start (we started 5 years ago), the flash memory is probably getting at it's end. Let's do a quick calculation: 
+## FLASH Memory at the end of its lifespan!
+Dear Weather Station fans. For the ones who are using their Weather Station already from the start (we started 5 years ago), the flash memory is probably getting at its end. Let's do a quick calculation: 
 5 years = 1'825 days. As we are doing 144 read/write cycles per day (all 10 Minutes) this results in 262'800 read/write clycles by now. Flash memory has a finite lifetime of about 100,000 write cycles (source: https://learn.adafruit.com/memories-of-an-arduino/arduino-memories#). Here we go. This is exactly what happened to my station. A flash write error causes the ESP8266 to loop for ever and sucking the battery empty. I discovered this just recently. 
 
 Code has been changed in order to reduce writing to flash memory by a factor of 3. Updating is highly recommended.
