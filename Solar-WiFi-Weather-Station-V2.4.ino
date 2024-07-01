@@ -1,5 +1,5 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.42
+  Project Name : Solar Powered WiFi Weather Station V2.43
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
@@ -77,6 +77,11 @@
   - MQTT, set to non-blocking in case of a broker error
   - switched to open broker HiveMQ
 
+  updated 01/07/24
+  - reduce writetoSpiffs by factor 3 --> 3 times more lifespan for Flash Memory
+    - writings per day now: 48 / per year: 17'520
+    - estimated lifespan of Flash Mem: 5.7 years with an expected 100'000 write cycles
+
   ////  Features :  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak and to any MQTT broker
   // 2. Monitoring Weather parameters like Temperature, Pressure abs, Pressure MSL and Humidity.
@@ -92,7 +97,7 @@
  *                                                 *
  **************************************************/
 
-#include "Settings24.h"
+#include "Settings_mst.h"
 #include "Translation24.h"
 #include <OneWire.h>               // for temperature sensor 18d20
 #include <DallasTemperature.h>     // for temperature sensor 18d20
@@ -162,8 +167,8 @@ void setup() {
   Serial.print(", Version ");
   Serial.println(Version);
 
-  translate();                     // assign translation variables
-  
+  translate();                      // assign translation variables
+
   client.setBufferSize(512);       // Increasing PubSubClient
 
   //******Battery Voltage Monitoring (first thing to do: is battery still ok?)***********
@@ -300,9 +305,6 @@ void setup() {
       accuracy = accuracy + 1;                            // one value more -> accuracy rises (up to 12 = 100%)
     }
     WriteToSPIFFS(current_timestamp);                   // update timestamp on storage
-  }
-  else {
-    WriteToSPIFFS(saved_timestamp);                     // do not update timestamp on storage
   }
 
   //**************************Calculate Zambretti Forecast*******************************************
