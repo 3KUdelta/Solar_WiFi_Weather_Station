@@ -293,7 +293,7 @@ void setup() {
   if (current_timestamp - saved_timestamp > 21600) {   // last save older than 6 hours -> re-initialize values
     FirstTimeRun();
   }
-  else if (current_timestamp - saved_timestamp > 1800) { // it is time for pressure update (1800 sec = 30 min)
+  else if (current_timestamp - saved_timestamp > 1700) { // it is time for pressure update (1800 sec = 30 min)
 
     for (int i = 11; i >= 1; i = i - 1) {
       pressure_value[i] = pressure_value[i - 1];        // shifting values one to the right
