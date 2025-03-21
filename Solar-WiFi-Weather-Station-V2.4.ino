@@ -82,42 +82,57 @@
     - writings per day now: 48 / per year: 17'520
     - estimated lifespan of Flash Mem: 5.7 years with an expected 100'000 write cycles
 
-  ////  Features :  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // 1. Connect to Wi-Fi, and upload the data to either Blynk App and/or Thingspeak and to any MQTT broker
-  // 2. Monitoring Weather parameters like Temperature, Pressure abs, Pressure MSL and Humidity.
-  // 3. Extra Ports to add more Weather Sensors like UV Index, Light and Rain Guage etc.
-  // 4. Remote Battery Status Monitoring
-  // 5. Using Sleep mode to reduce the energy consumed
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  updated 2025-03-21
+  - readd thingspeak, restructure settings
 
-  /***************************************************
-   VERY IMPORTANT:
- *                                                 *
-   Enter your personal settings in Settings.h !
- *                                                 *
- **************************************************/
+/*----------------------------------------------------------------------------------------------------
+
+  Features :
+  1. Connect to Wi-Fi, and upload the data to Blynk, Thingspeak and or any MQTT broker
+  2. Monitoring Weather parameters like Temperature, Pressure abs, Pressure MSL and Humidity.
+  3. Extra Ports to add more Weather Sensors like UV Index, Light and Rain Guage etc.
+  4. Remote Battery Status Monitoring
+  5. Using Sleep mode to reduce the energy consumed
+
+/*----------------------------------------------------------------------------------------------------
+
+  VERY IMPORTANT: 
+  Enter your personal settings in Settings24.h ! 
+ 
+/*----------------------------------------------------------------------------------------------------*/
 
 #include "Settings24.h"
 #include "Translation24.h"
+
+#ifdef EIGHTEENDTWENTY
 #include <OneWire.h>               // for temperature sensor 18d20
 #include <DallasTemperature.h>     // for temperature sensor 18d20
+#endif
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BME280.h>
 #include <ESP8266WiFi.h>
-#include <ArduinoJson.h>           // !!! ONLY WORKS currently with library version 6.20.1 !!!
+
+#ifdef MQTT
+#include <ArduinoJson.h>// !!! ONLY WORKS currently with library version 6.20.1 !!!
+#include <PubSubClient.h>
+#endif
+#ifdef BLYNK
 #include <BlynkSimpleEsp8266.h>    //https://github.com/blynkkk/blynk-library
+#endif
+#ifdef THINGSPEAK
+#include "ThingSpeak.h"
+#endif
+
 #include <WiFiUdp.h>
 #include "FS.h"
 #include <EasyNTPClient.h>         //https://github.com/aharshac/EasyNTPClient
 #include <TimeLib.h>               //https://github.com/PaulStoffregen/Time.git
-#include <PubSubClient.h>          // For MQTT (in this case publishing only)
-
-
-#define ONE_WIRE_BUS 13            // Data wire 18d20 Sensor is plugged into port D7 @ ESP8266
 
 Adafruit_BME280 bme;               // I2C
-OneWire oneWire(ONE_WIRE_BUS);     // Setup a oneWire instance to communicate with any OneWire devices on D7
-DallasTemperature s18d20(&oneWire); // Pass oneWire reference to Dallas Temperature Sensor 18d20
+#ifdef EIGHTEENDTWENTY
+  OneWire oneWire(13); // Data wire 18d20 Sensor is plugged into port 13 = D7 @ ESP8266
+  DallasTemperature s18d20(&oneWire); // Pass oneWire reference to Dallas Temperature Sensor 18d20
+#endif
 WiFiUDP udp;
 EasyNTPClient ntpClient(udp, NTP_SERVER, 0);  // reading UTC
 
@@ -156,8 +171,10 @@ String PressureState;               // current state of pressure (high, low, sto
 
 void(* resetFunc) (void) = 0;       // declare reset function @ address 0
 
-WiFiClient espClient;               // MQTT
-PubSubClient client(espClient);     // MQTT
+WiFiClient espClient;
+#ifdef MQTT
+PubSubClient client(espClient);
+#endif
 
 void setup() {
   Serial.begin(115200); while (!Serial); delay(200);
@@ -169,20 +186,22 @@ void setup() {
 
   translate();                      // assign translation variables
 
-  client.setBufferSize(512);       // Increasing PubSubClient
+  #ifdef MQTT
+    // Increasing PubSubClient buffer
+    client.setBufferSize(512);
+  #endif
 
   //******Battery Voltage Monitoring (first thing to do: is battery still ok?)***********
 
   // Voltage divider R1 = 220k+100k+220k =540k and R2=100k
-  float calib_factor = 5.1; // change this value to calibrate the battery voltage
   unsigned long raw = analogRead(A0);
-  volt = raw * calib_factor / 1024;
+  volt = raw * bat_calib_factor / 1024;
 
   Serial.print("Voltage = ");
   Serial.print(volt, 2); // print with 2 decimal places
   Serial.println (" V");
 
-  batterypercentage = (volt - 3.6) * 100 / 0.6;   // 3.6 V is the lower limint set to 0%, bandwith 0.6 V
+  batterypercentage = (volt - bat_volt_minimum) * 100 / 0.6;   // 3.6 V is the lower limint set to 0%, bandwith 0.6 V
   if (batterypercentage > 100) batterypercentage = 100;
   Serial.print("Battery charge: ");
   Serial.print(batterypercentage);
@@ -201,7 +220,7 @@ void setup() {
     if (i > 20) {
       Serial.println("Could not connect to WiFi!");
       Serial.println("Going to sleep for 10 minutes and try again.");
-      if (volt > 3.6) {
+      if (volt > bat_volt_minimum) {
         goToSleep(10);   // go to sleep and retry after 10 min
       }
       else {
@@ -212,10 +231,16 @@ void setup() {
   }
   Serial.println(" Wifi connected ok");
 
-  if (App1 == "BLYNK") {        // for posting data to Blynk App
+  // init transports
+  #ifdef BLYNK
     Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
-  }
-  if (MQTT) connect_to_MQTT();  // connecting to MQTT broker
+  #endif
+  #ifdef THINGSPEAK
+    ThingSpeak.begin(espClient);
+  #endif
+  #ifdef MQTT
+    connect_to_MQTT();
+  #endif
 
   //*****************Checking if SPIFFS available********************************
 
@@ -278,8 +303,10 @@ void setup() {
                   Adafruit_BME280::SAMPLING_X1, // humidity
                   Adafruit_BME280::FILTER_OFF   );
 
-  s18d20.begin();                 // starting 18d20
-  s18d20.requestTemperatures();   // Send the command to get temperatures
+  #ifdef EIGHTEENDTWENTY
+    s18d20.begin();                 // starting 18d20
+    s18d20.requestTemperatures();   // Send the command to get temperatures
+  #endif
 
   measurementEvent();            //calling function to get all data from the different sensors
 
@@ -310,7 +337,7 @@ void setup() {
   //**************************Calculate Zambretti Forecast*******************************************
 
   int accuracy_in_percent = accuracy * 94 / 12;        // 94% is the max predicion accuracy of Zambretti
-  if ( volt > 3.7 ) {                       // check if batt is still ok
+  if ( volt > bat_volt_minimum ) {                       // check if batt is still ok
     ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
     forecast_in_words = TEXT_ZAMBRETTI_FORECAST;
     pressure_in_words = TEXT_AIR_PRESSURE;
@@ -336,9 +363,7 @@ void setup() {
   }
   Serial.println("********************************************************");
 
-  // ************ code block for uploading data to BLYNK App ***************
-
-  if (App1 == "BLYNK") {
+  #ifdef BLYNK // Write to Blynk
     Blynk.virtualWrite(V0, adjusted_temp);            // virtual pin 0
     Blynk.virtualWrite(V1, adjusted_humi);            // virtual pin 1
     Blynk.virtualWrite(V2, measured_pres);            // virtual pin 2
@@ -352,15 +377,32 @@ void setup() {
     Blynk.virtualWrite(V10, DewPointSpread);          // virtual pin 10
     Blynk.virtualWrite(V11, PressureState);           // virtual pin 11
     Serial.println("Data written to Blynk ...");
-  }
+  #endif
 
-  // *********** code block for publishing all data to MQTT ****************************
-  if (MQTT) {
+  #ifdef THINGSPEAK // Write to Thingspeak
+    ThingSpeak.setField(1, rel_pressure_rounded);
+    ThingSpeak.setField(2, adjusted_temp);
+    ThingSpeak.setField(3, adjusted_humi);
+    ThingSpeak.setField(4, volt);
+    ThingSpeak.setField(5, measured_pres);
+    ThingSpeak.setField(6, float(DewpointTemperature));
+    ThingSpeak.setField(7, HeatIndex);
+    ThingSpeak.setStatus(String(ZambrettisWords + ", " + trend_in_words));
+
+    int feedback = ThingSpeak.writeFields(THINGSPEAK_CH_ID, THINGSPEAK_API_KEY);
+    if (feedback == 200) {
+      Serial.println("Writing to Thingspeak was successful!");
+    }
+    else {
+      Serial.println("Problem updating Thingspeak. HTTP error code " + String(feedback));
+    }
+  #endif
+
+  #ifdef MQTT
     StaticJsonDocument<512> jsonDoc;
     JsonObject rootObj = jsonDoc.createNestedObject("root");
 
     // Write the the values. Here you can use any C++ type (and you can refer to variables)
-
     rootObj["temperature"] = adjusted_temp;
     rootObj["humidity"] = adjusted_humi;
     rootObj["dewpoint"] = DewpointTemperature;
@@ -387,9 +429,9 @@ void setup() {
 
     client.publish(mqtt_topic, jsonBuffer, 1);   // , 1 = retained
     delay(500);
-  }
+  #endif
 
-  if (volt > 3.6) {          //check if batt still ok, if yes
+  if (volt > bat_volt_minimum) {          //check if batt still ok, if yes
     goToSleep(sleepTimeMin); //go for a nap
   }
   else {                     //if not,
@@ -409,16 +451,22 @@ void measurementEvent() {
 
   // Get temperature
   measured_temp_bme = bme.readTemperature();
-  measured_temp_dal = getTemperature();
-  measured_temp = measured_temp_dal;
+  #ifdef EIGHTEENDTWENTY
+    measured_temp_dal = getTemperature();
+    measured_temp = measured_temp_dal;
+  #else
+    measured_temp = measured_temp_bme;
+  #endif
   // print on serial monitor
   Serial.print("Temp BME: ");
   Serial.print(measured_temp_bme);
   Serial.println("°C; ");
 
-  Serial.print("Temp Dallas: ");
-  Serial.print(measured_temp_dal);
-  Serial.println("°C; ");
+  #ifdef EIGHTEENDTWENTY
+    Serial.print("Temp Dallas: ");
+    Serial.print(measured_temp_dal);
+    Serial.println("°C; ");
+  #endif
 
   // Get humidity
   measured_humi_bme = bme.readHumidity();
@@ -771,6 +819,7 @@ void FirstTimeRun() {
   resetFunc();                                              //call reset
 }
 
+#ifdef MQTT
 void connect_to_MQTT() {
   Serial.print("---> Connecting to MQTT, ");
   client.setServer(mqtt_server, 1883);
@@ -804,7 +853,9 @@ void reconnect() {
   }
 
 } //end void reconnect*/
+#endif
 
+#ifdef EIGHTEENDTWENTY
 float getTemperature() {
   const int numReadings = 32;                  // the higher the value, the smoother the average (default: 32)
   float readings[numReadings];                 // the readings from the analog input
@@ -827,21 +878,24 @@ float getTemperature() {
     return -88;
   }
 }
+#endif
 
 void goToSleep(unsigned int sleepmin) {
-  char tmp[128];
-  String sleepmessage =  StationName + ", " + Version + ": Taking a nap for " + String (sleepmin) + " Minutes";
-  sleepmessage.toCharArray(tmp, 128);
-  client.publish(mqtt_status, tmp);
-  delay(50);
+  #ifdef MQTT
+    char tmp[128];
+    String sleepmessage =  StationName + ", " + Version + ": Taking a nap for " + String (sleepmin) + " Minutes";
+    sleepmessage.toCharArray(tmp, 128);
+    client.publish(mqtt_status, tmp);
+    delay(50);
 
-  Serial.println("INFO: Closing the MQTT connection");
-  client.disconnect();
+    Serial.println("INFO: Closing the MQTT connection");
+    client.disconnect();
+  #endif
 
   Serial.println("INFO: Closing the Wifi connection");
   WiFi.disconnect();
 
-  while (client.connected() || (WiFi.status() == WL_CONNECTED)) {
+  while (espClient.connected() || (WiFi.status() == WL_CONNECTED)) {
     Serial.println("Waiting for shutdown before sleeping");
     delay(10);
   }
