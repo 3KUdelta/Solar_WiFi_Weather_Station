@@ -29,27 +29,25 @@ const String Version = "2.6";
  * Choose which sensors are physically connected. The BME280 is required as
  * the project relies on its pressure sensor for the Zambretti forecast.
  * Additional sensors are optional and can be enabled or disabled here.
- *
- * Multiple temperature/humidity sensors can be enabled simultaneously for
- * cross-checking and logging. Use TEMP_SOURCE / HUMI_SOURCE below to choose
- * which one is the canonical (primary) value used for forecasts and MQTT.
  ****************************************************************************/
 
-// Sensor presence flags (1 = enabled, 0 = disabled)
+// ---- Step 1: Which sensors are physically connected? ----
+// Set to 1 if the sensor is wired up, 0 if not.
+// BME280 is always required (it provides the pressure data for Zambretti).
+
 #define USE_BME280     1     // Bosch BME280: pressure (REQUIRED), humidity, temperature
 #define USE_DS18B20    1     // Dallas 18B20:  temperature only (one-wire on D7)
 #define USE_SHT45      1     // Sensirion SHT45: temperature + humidity (I²C @ 0x44)
 
-// Canonical source selection
-//   For TEMP_SOURCE choose one of: SRC_BME, SRC_DAL, SRC_SHT
-//   For HUMI_SOURCE choose one of: SRC_BME, SRC_SHT
-// (Make sure the chosen source is also enabled above; otherwise the code
-// falls back to BME280 with a warning at startup.)
-#define SRC_BME 1
-#define SRC_DAL 2
-#define SRC_SHT 3
+// ---- Step 2: Which sensor should be used for the actual readings? ----
+// When multiple sensors are enabled, all of them are read and logged to
+// Serial. But only ONE temperature source and ONE humidity source are used
+// for the Zambretti forecast, MQTT, Blynk, dewpoint etc.
+//
+// Pick one:  SRC_BME = BME280,  SRC_DAL = DS18B20,  SRC_SHT = SHT45
+// (If you pick a sensor that is disabled above, the code falls back to BME280.)
 
-#define TEMP_SOURCE    SRC_DAL    // recommended outdoor: Dallas (better thermal buffering)
+#define TEMP_SOURCE    SRC_DAL    // recommended outdoor: Dallas (better thermal buffering in sun)
 #define HUMI_SOURCE    SRC_SHT    // recommended outdoor: SHT45 (PTFE membrane, integrated heater)
 
 /******* configuration control constant for use of Blynk and/or Thingspeak **/
