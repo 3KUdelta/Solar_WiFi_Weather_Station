@@ -9,11 +9,13 @@ After ~5 years of outdoor service, the HDC1080 humidity sensor in my reference s
 
 V2.6 also adds **configurable sensor selection** — you can now enable or disable each sensor (BME280, DS18B20, SHT45) directly in `Settings26.h` with simple `#define` switches, and choose which sensor is the canonical (primary) source for temperature and humidity. This makes the project usable with any subset of sensors you have on hand. The BME280 remains required because the project relies on its pressure sensor for the Zambretti forecast.
 
+The **Blynk connection is now non-blocking**. Previous versions used `Blynk.begin()` which would hang the ESP and trigger a Soft WDT reset if the Blynk server was unreachable or the credentials were wrong. V2.6 uses `Blynk.config()` + `Blynk.connect(5000)` with a 5-second timeout instead — if Blynk fails, the station continues normally with MQTT. No more crashes due to Blynk server issues.
+
 The **translation system has been completely redesigned**. The old monolithic Translation.h with duplicated summer/winter blocks per language is gone. Each language now lives in its own file (`Translation_DE.h`, `Translation_EN.h`, ...) and uses `{P}` and `{E}` template markers for precipitation words. Summer/winter switching (rain ↔ snow) happens automatically at runtime based on outdoor temperature — no more separate "DW" language blocks. Adding a new language is now just copying a ~80-line file and translating the strings.
 
-Finally, several bugs and robustness issues that accumulated over the years have been fixed — see the changelog below.
+Finally, several bugs and robustness issues that accumulated over the years have been fixed — see the full changelog below.
 
-### Repo structure
+### Repo structure V2.6
 
 ```
 Solar_WiFi_Weather_Station/
@@ -79,10 +81,19 @@ In `Settings26.h`:
 ```
 
 
+## NEW: Solar Station Watchdog
+
+A companion project that monitors your weather station via MQTT and alerts you when something goes wrong. Runs on a second ESP8266 with a small OLED display, shows live weather data and blinks the onboard LED on alarm conditions (station offline, battery critical, humidity sensor stuck, DS18B20 bus error).
+
+**Repository: https://github.com/3KUdelta/Solar_Station_Watchdog**
+
+Hardware needed: Wemos D1 Mini + SSD1306 OLED 128×64 (~5 €). Powered by USB, runs continuously.
+
+
 ## FLASH Memory at the end of its lifespan!
 
-Dear Weather Station fans. For the ones who are using their Weather Station already from the start (we started in 2019), the flash memory is probably getting at its end. Let's do a quick calculation:
-e.g. 5 years = 1'825 days. As we are doing 144 read/write cycles per day (all 10 Minutes) this results in 262'800 read/write clycles by now. Flash memory has a finite lifetime of about 100,000 write cycles (source: https://learn.adafruit.com/memories-of-an-arduino/arduino-memories#). Here we go. This is exactly what happened to my station. A flash write error causes the ESP8266 to loop for ever and sucking the battery empty. I discovered this just recently.
+Dear Weather Station fans. For the ones who are using their Weather Station already from the start (we started 5 years ago), the flash memory is probably getting at its end. Let's do a quick calculation:
+5 years = 1'825 days. As we are doing 144 read/write cycles per day (all 10 Minutes) this results in 262'800 read/write clycles by now. Flash memory has a finite lifetime of about 100,000 write cycles (source: https://learn.adafruit.com/memories-of-an-arduino/arduino-memories#). Here we go. This is exactly what happened to my station. A flash write error causes the ESP8266 to loop for ever and sucking the battery empty. I discovered this just recently.
 
 Easy fix:
 
@@ -95,8 +106,10 @@ Get a new ESP8266 D1 mini Pro CH9102 16M (e.g. https://www.aliexpress.com/item/1
 
 Running Blynk legacy will drain your battery and your device will stop working. Please update to new Blynk (free version works very well).
 
+**V2.6 note:** The Blynk connection is now non-blocking. If the Blynk server is unreachable or your credentials are wrong, the station will continue normally instead of crashing with a Soft WDT reset. This was a common issue reported by users on V2.4.
+
 1. Create new Blynk account (https://blynk.io) Top right.
-2. Add new template (see example https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/Blynk_Template_Definition.png)
+2. Add new template (see example below)
 3. Add new device using your new template
 4. Load Blynk App for your mobile device
 5. Add widgets as before
@@ -122,6 +135,9 @@ Major changes:
   * Turkish (Mert Sarac)
   * Dutch (Rickthefrog)
   * Norwegian (solbero)
+
+Note: V2.6 ships with German and English in the new template format. The other languages from V2.3 have not yet been migrated. If you'd like to help, see "How to add a new language" above — it's a quick job of ~30 minutes per language.
+
 
 Changes in V2.3
 
@@ -181,6 +197,7 @@ Changes in V2.6
 
 - **Sensor migration**: replaced HDC1080 with Sensirion SHT45 (AD1B variant with PTFE membrane recommended for outdoor use). Heater pulse (200 mW × 1 s) applied before every measurement for better long-term stability.
 - **Configurable sensors via Settings26.h**: enable/disable BME280, DS18B20 and SHT45 individually with `USE_*` defines. Choose canonical temperature and humidity source with `TEMP_SOURCE` / `HUMI_SOURCE`. Compile-time validation catches invalid combinations. BME280 stays mandatory (pressure / Zambretti).
+- **Blynk non-blocking**: `Blynk.begin()` replaced with `Blynk.config()` + `Blynk.connect(5000)`. Station continues without Blynk if the server is unreachable. `Blynk.virtualWrite()` calls are now guarded by `Blynk.connected()`.
 - **New translation architecture**: one file per language with `{P}` / `{E}` template markers for precipitation words. Summer/winter switching is automatic. The old monolithic Translation.h with duplicated DE/DW blocks is gone. See "How to add a new language" above.
 - **Required libraries**: install `Adafruit SHT4x Library` (and its dependency `Adafruit Unified Sensor`). The old `ClosedCube_HDC1080` library is no longer needed.
 - **Bugfixes** accumulated from issues over the years:
@@ -206,6 +223,7 @@ New Blynk App Example (free widgets)
 Blynk template definition
 ![Solar Wifi Weather Station](https://github.com/3KUdelta/Solar_WiFi_Weather_Station/raw/master/Blynk_Template_Definition.png)
 
+Monitoring your station: https://github.com/3KUdelta/Solar_Station_Watchdog
 Showing the data on a LED display: https://github.com/3KUdelta/MDparola_MQTT_monitor
 ![LED matrix MQTT monitor](https://github.com/3KUdelta/MDparola_MQTT_monitor/raw/master/pictures/IMG_3180.JPG)
 
