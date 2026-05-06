@@ -123,9 +123,6 @@ Major changes:
   * Dutch (Rickthefrog)
   * Norwegian (solbero)
 
-Note: V2.6 ships with German and English. The other languages from V2.3 have not yet been migrated to the new template format. If you'd like to help, see "How to add a new language" above — it's a quick job of ~30 minutes per language.
-
-
 Changes in V2.3
 
 - included famous Zambretti forecaster (see Blynk example)
