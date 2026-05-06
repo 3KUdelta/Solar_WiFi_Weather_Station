@@ -96,7 +96,7 @@ Get a new ESP8266 D1 mini Pro CH9102 16M (e.g. https://www.aliexpress.com/item/1
 Running Blynk legacy will drain your battery and your device will stop working. Please update to new Blynk (free version works very well).
 
 1. Create new Blynk account (https://blynk.io) Top right.
-2. Add new template (see example below)
+2. Add new template (see example https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/Blynk_Template_Definition.png)
 3. Add new device using your new template
 4. Load Blynk App for your mobile device
 5. Add widgets as before
