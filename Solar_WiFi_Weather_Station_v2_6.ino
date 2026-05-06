@@ -67,6 +67,13 @@
 // Note: Translation file is now included from Settings26.h (Translations/Translation_XX.h)
 
 // =====================================================================
+// Internal constants for sensor source selection (do not change)
+// =====================================================================
+#define SRC_BME 1
+#define SRC_DAL 2
+#define SRC_SHT 3
+
+// =====================================================================
 // Sensor configuration validation (compile-time)
 // =====================================================================
 #if !USE_BME280
@@ -285,7 +292,14 @@ void setup() {
   Serial.println(" Wifi connected ok");
 
   if (App1 == "BLYNK") {        // for posting data to Blynk App
-    Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+    Blynk.config(BLYNK_AUTH_TOKEN);
+    Serial.print("---> Connecting to Blynk ");
+    bool blynk_ok = Blynk.connect(5000);  // 5 second timeout, non-blocking
+    if (blynk_ok) {
+      Serial.println("Blynk connected ok");
+    } else {
+      Serial.println("Blynk connection failed - continuing without Blynk");
+    }
   }
 
   if (MQTT) connect_to_MQTT();  // connecting to MQTT broker
@@ -427,7 +441,7 @@ void setup() {
 
   // ************ code block for uploading data to BLYNK App ***************
 
-  if (App1 == "BLYNK") {
+  if (App1 == "BLYNK" && Blynk.connected()) {
     Blynk.virtualWrite(V0, adjusted_temp);
     Blynk.virtualWrite(V1, adjusted_humi);
     Blynk.virtualWrite(V2, measured_pres);
