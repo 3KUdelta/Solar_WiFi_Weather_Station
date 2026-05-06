@@ -109,7 +109,7 @@ Running Blynk legacy will drain your battery and your device will stop working. 
 **V2.6 note:** The Blynk connection is now non-blocking. If the Blynk server is unreachable or your credentials are wrong, the station will continue normally instead of crashing with a Soft WDT reset. This was a common issue reported by users on V2.4.
 
 1. Create new Blynk account (https://blynk.io) Top right.
-2. Add new template (see example below)
+2. Add new template (see example https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/Blynk_Template_Definition.png)
 3. Add new device using your new template
 4. Load Blynk App for your mobile device
 5. Add widgets as before
@@ -135,9 +135,6 @@ Major changes:
   * Turkish (Mert Sarac)
   * Dutch (Rickthefrog)
   * Norwegian (solbero)
-
-Note: V2.6 ships with German and English in the new template format. The other languages from V2.3 have not yet been migrated. If you'd like to help, see "How to add a new language" above — it's a quick job of ~30 minutes per language.
-
 
 Changes in V2.3
 
