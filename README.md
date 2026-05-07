@@ -92,8 +92,8 @@ Hardware needed: Wemos D1 Mini + SSD1306 OLED 128×64 (~5 €). Powered by USB, 
 
 ## FLASH Memory at the end of its lifespan!
 
-Dear Weather Station fans. For the ones who are using their Weather Station already from the start (we started 5 years ago), the flash memory is probably getting at its end. Let's do a quick calculation:
-5 years = 1'825 days. As we are doing 144 read/write cycles per day (all 10 Minutes) this results in 262'800 read/write clycles by now. Flash memory has a finite lifetime of about 100,000 write cycles (source: https://learn.adafruit.com/memories-of-an-arduino/arduino-memories#). Here we go. This is exactly what happened to my station. A flash write error causes the ESP8266 to loop for ever and sucking the battery empty. I discovered this just recently.
+Dear Weather Station fans. For the ones who are using their Weather Station already from the start (we started 2019), the flash memory is probably getting at its end. Let's do a quick calculation
+for example: 5 years = 1'825 days. As we are doing 144 read/write cycles per day (all 10 Minutes) this results in 262'800 read/write clycles by now. Flash memory has a finite lifetime of about 100,000 write cycles (source: https://learn.adafruit.com/memories-of-an-arduino/arduino-memories#). Here we go. This is exactly what happened to my station. A flash write error causes the ESP8266 to loop for ever and sucking the battery empty. I discovered this just recently.
 
 Easy fix:
 
