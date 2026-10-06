@@ -1,12 +1,12 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.6
+  Project Name : Solar Powered WiFi Weather Station V2.7
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com */
 
 const String StationName = "SWS_YourPlace";  // SolarWeatherStation (SWS)
-const String Version = "2.6";
+const String Version = "2.7";
 
 /******* Language Selection **************************************************
  * Choose the language by including the corresponding translation file.
@@ -71,15 +71,33 @@ const char* mqtt_server = "broker.hivemq.com";       // MQTT Server (broker) add
 const int mqtt_port = 1883;                          // MQTT Server Port
 const char* mqtt_user = "";                          // MQTT Server (broker) userid
 const char* mqtt_pass = "";                          // MQTT Server (broker) password
+const char* mqtt_client_id = "SWS_YourPlace";           // MQTT client id, must be unique on the broker
 const char* mqtt_topic = "YOUR_TOPIC";               // e.g. myname/weather/my_location
 const char* mqtt_press_topic = "YOUR_TOPIC";         // e.g. myname/weather/my_location/pressure
 const char* mqtt_status = "YOUR_STATUS";             // e.g. myname/status
+
+/****** OTA Settings (firmware update over WiFi) *****************************
+ * After WiFi/MQTT connect the station fetches OTA_BASE_URL "firmware.md5"
+ * and compares it with the MD5 of the running firmware. If they differ,
+ * OTA_BASE_URL "firmware.bin" is downloaded, verified and flashed.
+ * No file on the server (or server unreachable) = normal run, no update.
+ * Result is published (retained) on mqtt_ota_topic and on mqtt_status.
+ * To publish a firmware: run deploy.command in that web server folder (see README).
+ ****************************************************************************/
+
+#define OTA_ENABLED      0                              // 1 = check for new firmware on every wake-up, 0 = off (default)
+#define OTA_BASE_URL     "http://192.168.1.10/sws/"   // plain http, IP address (no .local names), must end with /
+#define OTA_MIN_VOLT     (3.7)                          // no flashing below this battery voltage
+#define OTA_MAX_ATTEMPTS 3                              // give up on a firmware file after this many tries
+
+const char* mqtt_ota_topic = "YOUR_TOPIC";         // e.g. myname/weather/my_location/ota
 
 /****** Additional Settings **************************************************/
 
 #define TEMP_CORR (0)                // Manual correction of temp sensor, humidity will automatically corrected with August-Roche-Magnus approximation
 #define ELEVATION (420)              // Enter your elevation in m ASL to calculate rel pressure (ASL/QNH) at your place
 #define sleepTimeMin (10)            // setting of deepsleep time in minutes (default: 10)
+#define lowBattSleepMin (60)         // deepsleep time in minutes while battery is empty (<= 3.4 V); station recovers by itself once recharged
 #define NTP_SERVER "ch.pool.ntp.org" // NTP (reading UTC; local timezone does not matter, time is only needed for raising/falling pressure calcualtions)
 
 // Temperature threshold (°C) for switching between summer (rain) and winter

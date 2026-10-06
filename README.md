@@ -3,11 +3,78 @@
 Based on the work of Open Green Energy. https://www.instructables.com/id/Solar-Powered-WiFi-Weather-Station-V20/
 Authors of the base code: Keith Hungerford and Debasish Dutta - Excellent work, gentlemen!
 
-## NEW in V2.6: SHT45 sensor, configurable sensors, new translation architecture
+## NEW in V2.7: Firmware updates over WiFi (OTA)
+
+Until now every software or configuration change meant taking the station down from its place outside, opening the box and connecting a cable. V2.7 ends this: **the station updates itself**. On every wake-up it looks for a new firmware file on a web server in your home network, and if there is one, it downloads it, flashes itself and reports the result via MQTT.
+
+### How it works
+
+Right after connecting to WiFi and MQTT, the station fetches a small file `firmware.md5` from your web server and compares it with the MD5 checksum of the firmware it is running.
+
+- No file on the server, or server not reachable: nothing happens, normal measurement cycle.
+- Same checksum: firmware is up to date, normal measurement cycle.
+- Different checksum: `firmware.bin` is downloaded, verified against the checksum, flashed, and the station restarts with the new firmware.
+
+All settings are compile-time constants, so a configuration change (sleep time, temperature correction, language, ...) is simply a new firmware file.
+
+### Setting it up
+
+1. You need a web server in your LAN that serves static files over plain **http** (a NAS, a Raspberry Pi, ...). Create a folder for the station, e.g. `http://192.168.1.10/sws/`.
+2. In `Settings27.h` set `OTA_ENABLED` to `1` and `OTA_BASE_URL` to that folder (IP address, no `https`, no `.local` names, trailing `/`). OTA is switched off by default.
+3. In the Arduino IDE choose a flash layout with OTA space, e.g. Tools → Flash Size → **4MB (FS:2MB OTA:~1019KB)**, and keep this setting for all later builds.
+4. Flash V2.7 **once by cable** and press the reset button once afterwards (on an ESP8266 the first software restart after a serial upload can hang).
+
+### Publishing a new firmware
+
+1. Arduino IDE: Sketch → Export Compiled Binary.
+2. Copy the exported `.bin` to the web server folder as `firmware.bin`.
+3. Write its MD5 checksum (32 hex characters) into `firmware.md5` in the same folder. Write this file **last**, it is the trigger.
+
+The script `deploy.command` in this repo does steps 2 and 3 for you on macOS (double-click) and Linux (`bash deploy.command`): put it into the web server folder and set the path to your sketch folder at the top. On Windows, `certutil -hashfile firmware.bin MD5` gives you the checksum.
+
+The station updates itself on its next wake-up, i.e. within one sleep interval.
+
+### What you see on MQTT
+
+Messages are published retained on `mqtt_ota_topic` (so they are still there while the station sleeps) and additionally on `mqtt_status`:
+
+```
+SWS_YourPlace, 2.7: OTA start: new firmware 3f9a12c7 found, attempt 1/3
+SWS_YourPlace, 2.7: OTA: firmware flashed, restarting
+SWS_YourPlace, 2.7.1: OTA ok: 2.7 -> 2.7.1
+SWS_YourPlace, 2.7: OTA error (attempt 1/3): HTTP error: connection failed - continuing with 2.7
+SWS_YourPlace, 2.7: OTA postponed: battery 3.62 V is below 3.70 V
+```
+
+Success is reported by the **new** firmware after the restart. Change `Version` in `Settings27.h` with every build (max. 8 characters), then the message shows what happened. Without MQTT (`MQTT = false`) the update works as well, the result is only visible on the serial monitor.
+
+### Things you should know
+
+- **The firmware file contains your WiFi and MQTT credentials in clear text.** Keep it inside your LAN. Do not put it on a public web server and do not attach it to a GitHub issue.
+- **There is no way back.** An ESP8266 cannot roll back to the previous firmware. A failed download is harmless (the old firmware keeps running), but a firmware with a wrong WiFi password or one that crashes before the update check can only be replaced by cable. This is why the update check runs first, before Blynk, NTP and the sensors: as long as WiFi and the update check work, almost any later bug can be fixed remotely.
+- **Built-in brakes:** no flashing below `OTA_MIN_VOLT` (default 3.7 V), and the same firmware file is tried at most `OTA_MAX_ATTEMPTS` times (default 3), so a broken file cannot cause an endless update loop.
+- **Do not change the Flash Size setting** between builds. That is the one change you should make by cable.
+
+### Other changes in V2.7
+
+- **Empty battery no longer means "dead forever".** Below 3.4 V the station used to go into `deepSleep(0)`, which never wakes up, even after the solar panel had recharged the battery. It now sleeps `lowBattSleepMin` (default 60) minutes and resumes by itself.
+- **No more restart loop without internet.** If the NTP server could not be reached, the station restarted immediately, again and again, and drained the battery. It now goes to sleep and retries on the next wake-up.
+- **Pressure curve on a new broker.** With `MQTT = true` and a broker (or topic) that has no retained pressure curve yet, the curve was never created and the forecast never started. It is now created after 3 runs without curve.
+- **DS18B20 diagnosis.** One retry on a bogus reading, and a diagnosis line published retained on `<mqtt_topic>/diag` (`DS18B20: ok`, or the raw value and the number of devices found on the bus).
+- **Rain/snow hysteresis really works now** (its state survives deep sleep), and implausible pressure readings no longer overwrite the pressure curve.
+- **Fixed MQTT client id** (`mqtt_client_id` in `Settings27.h`) instead of a random one.
+
+### Upgrading from V2.6
+
+Copy your values from `Settings26.h` into the new `Settings27.h`. New entries: `mqtt_client_id`, `lowBattSleepMin` and the OTA block. If you keep your personal settings in a file named `Settings27_mst.h` next to the sketch, the sketch uses that one automatically (it is excluded from Git by `.gitignore`).
+
+The [Solar Station Watchdog](https://github.com/3KUdelta/Solar_Station_Watchdog) works with V2.7 without changes.
+
+## V2.6: SHT45 sensor, configurable sensors, new translation architecture
 
 After ~5 years of outdoor service, the HDC1080 humidity sensor in my reference station drifted to a permanent 100% reading. The polymer membrane on these sensors is consumable in outdoor conditions — chemical contamination, repeated condensation cycles and dust degrade them over time. V2.6 replaces the HDC1080 with the **Sensirion SHT45** (the AD1B variant has a factory PTFE membrane, much better for outdoor use), and applies a 200 mW × 1 s heater pulse before every measurement to drive moisture out of the polymer. This dramatically improves long-term stability, especially in winter when humidity sits near saturation for weeks.
 
-V2.6 also adds **configurable sensor selection** — you can now enable or disable each sensor (BME280, DS18B20, SHT45) directly in `Settings26.h` with simple `#define` switches, and choose which sensor is the canonical (primary) source for temperature and humidity. This makes the project usable with any subset of sensors you have on hand. The BME280 remains required because the project relies on its pressure sensor for the Zambretti forecast.
+V2.6 also adds **configurable sensor selection** — you can now enable or disable each sensor (BME280, DS18B20, SHT45) directly in the settings file with simple `#define` switches, and choose which sensor is the canonical (primary) source for temperature and humidity. This makes the project usable with any subset of sensors you have on hand. The BME280 remains required because the project relies on its pressure sensor for the Zambretti forecast.
 
 The **Blynk connection is now non-blocking**. Previous versions used `Blynk.begin()` which would hang the ESP and trigger a Soft WDT reset if the Blynk server was unreachable or the credentials were wrong. V2.6 uses `Blynk.config()` + `Blynk.connect(5000)` with a 5-second timeout instead — if Blynk fails, the station continues normally with MQTT. No more crashes due to Blynk server issues.
 
@@ -15,20 +82,22 @@ The **translation system has been completely redesigned**. The old monolithic Tr
 
 Finally, several bugs and robustness issues that accumulated over the years have been fixed — see the full changelog below.
 
-### Repo structure V2.6
+### Repo structure V2.7
 
 ```
 Solar_WiFi_Weather_Station/
-├── Solar_WiFi_Weather_Station_v2_6.ino    # Main sketch
-├── Settings26.h                            # User configuration (sensors, WiFi, MQTT, language)
+├── Solar_WiFi_Weather_Station_v2_7.ino    # Main sketch
+├── Settings27.h                            # User configuration (sensors, WiFi, MQTT, OTA, language)
 ├── Translation_DE.h                        # German translation
-├── Translation_EN.h                        # English translation
+├── Translation_EN.h                        # English translation (and 8 more languages)
+├── deploy.command                          # Helper to publish a firmware for OTA
+├── history/                                # Older versions
 └── README.md
 ```
 
 ### Language selection
 
-In `Settings26.h`, uncomment the language you want:
+In `Settings27.h`, uncomment the language you want:
 
 ```cpp
 #include "Translation_DE.h"
@@ -46,12 +115,12 @@ Summer/winter precipitation words (rain ↔ snow) switch automatically based on 
    - `LANG_PRECIP_P_WINTER` — generic winter precipitation (e.g. "neve", "neige", "snow")
    - `LANG_PRECIP_E_SUMMER` — precipitation event (e.g. "acquazzoni", "averses", "showers")
    - `LANG_PRECIP_E_WINTER` — winter precipitation event (e.g. "nevicata", "chutes de neige", "snowfall")
-4. In `Settings26.h`, add `#include "Translation_XX.h"` and comment out the old one
+4. In `Settings27.h`, add `#include "Translation_XX.h"` and comment out the old one
 5. Pull requests welcome!
 
 ### Sensor configuration examples
 
-In `Settings26.h`:
+In `Settings27.h`:
 
 **Full setup** (all three sensors, recommended for outdoor reference station):
 ```cpp
@@ -106,7 +175,7 @@ Get a new ESP8266 D1 mini Pro CH9102 16M (e.g. https://www.aliexpress.com/item/1
 
 Running Blynk legacy will drain your battery and your device will stop working. Please update to new Blynk (free version works very well).
 
-**V2.6 note:** The Blynk connection is now non-blocking. If the Blynk server is unreachable or your credentials are wrong, the station will continue normally instead of crashing with a Soft WDT reset. This was a common issue reported by users on V2.4.
+**Since V2.6:** The Blynk connection is non-blocking. If the Blynk server is unreachable or your credentials are wrong, the station will continue normally instead of crashing with a Soft WDT reset. This was a common issue reported by users on V2.4.
 
 1. Create new Blynk account (https://blynk.io) Top right.
 2. Add new template (see example https://github.com/3KUdelta/Solar_WiFi_Weather_Station/blob/master/Blynk_Template_Definition.png)
@@ -208,6 +277,22 @@ Changes in V2.6
   * `resetFunc()` (jump to address 0) replaced with `ESP.restart()` everywhere — cleaner reset, no more Exception 4 on reboot.
   * Defensive defaults in Zambretti switch statements; double semicolon typo fixed.
   * Battery percentage is now clamped to 0-100% (no more negative values when the divider is disconnected).
+
+
+Changes in V2.7
+
+- **Firmware update over WiFi (OTA)**: on every wake-up the station compares `firmware.md5` on a web server in the LAN with its own firmware and, if they differ, downloads, verifies and flashes `firmware.bin`. Start, success and failure are published via MQTT (`mqtt_ota_topic`, `mqtt_status`). Off by default; see "NEW in V2.7" above for setup and safety notes.
+- **Bugfixes**:
+  * Empty battery (≤ 3.4 V) used `deepSleep(0)` and never woke up again — now sleeps `lowBattSleepMin` (60) minutes and resumes after recharging.
+  * NTP server not reachable caused an endless restart loop without sleep — now sleeps and retries on the next wake-up.
+  * Pressure curve was never created on a broker without retained curve — now created after 3 consecutive runs without curve.
+  * Implausible pressure readings (BME280 missing or defective) no longer overwrite the stored pressure curve.
+  * Rain/snow hysteresis had no effect because its state was lost in deep sleep — now kept in RTC memory.
+  * With empty battery, trend and Zambretti letter were not calculated (published "rising fast" and an empty letter).
+  * Sleep time calculation overflowed above 71 minutes.
+- **DS18B20**: one retry on a bogus reading; diagnosis line on `<mqtt_topic>/diag`.
+- **MQTT client id** is a fixed, configurable name (`mqtt_client_id`).
+- **Settings**: the sketch uses a personal `Settings27_mst.h` if present, otherwise `Settings27.h`.
 
 
 Print the box yourself: https://www.thingiverse.com/thing:3551386

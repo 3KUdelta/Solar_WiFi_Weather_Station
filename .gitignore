@@ -1,0 +1,8 @@
+# personal settings (WiFi / MQTT / Blynk credentials) stay out of Git
+Settings*_mst.h
+
+# build output (contains the credentials as well)
+build/
+*.bin
+
+.DS_Store

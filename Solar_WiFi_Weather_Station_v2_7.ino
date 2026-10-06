@@ -1,11 +1,15 @@
 /*----------------------------------------------------------------------------------------------------
-  Project Name : Solar Powered WiFi Weather Station V2.6
+  Project Name : Solar Powered WiFi Weather Station V2.7
   Features: temperature, dewpoint, dewpoint spread, heat index, humidity, absolute pressure, relative pressure, battery status and
   the famous Zambretti Forecaster (multi lingual)
   Authors: Keith Hungerford, Debasish Dutta and Marc Stähli
   Website : www.opengreenenergy.com
 
   Main microcontroller (ESP8266) and BME280 both sleep between measurements
+  
+  ESP8266 is a LOLIN WEMOS D1 mini 
+  Settings Flash Size: 4MB: 2MB FS and 1019kb OTA / Flash Mode: DOUT (compatible)
+
   BME280 is used in single shot mode ("forced mode")
   CODE: https://github.com/3KUdelta/Solar_WiFi_Weather_Station
   INSTRUCTIONS & HARDWARE: https://www.instructables.com/id/Solar-Powered-WiFi-Weather-Station-V20/
@@ -13,6 +17,46 @@
 
   ====================================================================
   Version History (recent):
+
+  v2.7 (October 2026) - Self-updating firmware (OTA pull)
+  - On every wake-up, right after WiFi/MQTT connect, the station fetches
+    "firmware.md5" from a web server in the LAN (OTA_BASE_URL in Settings27.h)
+    and compares it with the MD5 of the running firmware. If they differ,
+    "firmware.bin" is downloaded, verified against that MD5 and flashed.
+    - No file / server unreachable -> normal measurement cycle, nothing happens.
+    - No flashing below OTA_MIN_VOLT.
+    - A given firmware file is tried at most OTA_MAX_ATTEMPTS times
+      (counter in RTC memory), so a bad file cannot cause an update loop.
+    - Start, success and failure are published via MQTT: retained on
+      mqtt_ota_topic and additionally on mqtt_status. Success is confirmed
+      by the NEW firmware after the reboot.
+  - The OTA check deliberately runs before Blynk, NTP and the sensors: as long
+    as WiFi and the OTA check work, a faulty firmware can be replaced remotely.
+    Blynk connect therefore moved behind the OTA check.
+  - Bugfix: empty battery (<= 3.4 V) no longer means deepSleep(0) = sleep
+    forever ("Going to sleep now for 0 Minute(s)"). The station now sleeps
+    lowBattSleepMin (60) minutes and resumes by itself once recharged.
+    Sleep time calculation is 64 bit now (overflowed above 71 minutes).
+  - Bugfix: NTP server not reachable no longer causes an endless restart loop
+    without sleep (battery drain). The station sleeps and retries on the
+    next wake-up.
+  - Bugfix: rain/snow hysteresis now really works. Its state was a static
+    variable that is lost in every deep sleep; it is kept in RTC memory now.
+  - Bugfix: on a broker without retained pressure curve (new broker or topic)
+    the curve was never initialized, so the forecast never started. After 3
+    runs in a row without curve it is created now.
+  - Implausible pressure readings (BME280 missing or defective) no longer
+    overwrite the stored pressure curve.
+  - MQTT client id is a fixed, configurable name now (mqtt_client_id in
+    Settings27.h) instead of a random one.
+  - DS18B20: one retry on a bogus reading; diagnosis line (ok / error with
+    raw value and number of devices found) published on <mqtt_topic>/diag.
+  - Bugfix: with empty battery, trend and Zambretti letter are still
+    calculated and published (were "rising fast" and an empty letter); only
+    the forecast text is replaced by the battery warning.
+  - First installation of v2.7 must be done by cable. Press reset once after
+    the serial upload (ESP8266: first software restart after serial flashing
+    can hang).
 
   v2.6 (April 2026) - SHT45 migration, configurable sensors & robustness pass
   - Replaced HDC1080 (failed after ~5 years outdoor) with Sensirion SHT45
@@ -59,12 +103,17 @@
   /***************************************************
    VERY IMPORTANT:
  *                                                 *
-   Enter your personal settings in Settings26.h !
+   Enter your personal settings in Settings27.h !
  *                                                 *
  **************************************************/
 
-#include "Settings26.h"
-// Note: Translation file is now included from Settings26.h (Translations/Translation_XX.h)
+// A personal settings file (kept out of Git) is used if present, otherwise Settings27.h.
+#if __has_include("Settings27_mst.h")
+  #include "Settings27_mst.h"
+#else
+  #include "Settings27.h"
+#endif
+// Note: Translation file is now included from Settings27.h (Translations/Translation_XX.h)
 
 // =====================================================================
 // Internal constants for sensor source selection (do not change)
@@ -126,6 +175,25 @@
 #include <EasyNTPClient.h>          // https://github.com/aharshac/EasyNTPClient
 #include <TimeLib.h>                // https://github.com/PaulStoffregen/Time.git
 #include <PubSubClient.h>           // For MQTT (in this case publishing only)
+
+#if OTA_ENABLED
+  #include <ESP8266HTTPClient.h>    // OTA: reading firmware.md5 from the web server
+  #include <ESP8266httpUpdate.h>    // OTA: download & flash firmware.bin
+
+  // Must be declared before the first function (Arduino generates prototypes there).
+  // OTA state kept in RTC memory: survives deep sleep and ESP.restart(), lost on power cycle.
+  // Blocks 0..31 of the RTC user memory are used by the bootloader for the update itself.
+#define OTA_RTC_OFFSET 64
+#define OTA_RTC_MAGIC  0x4F544137
+struct OtaState {
+  uint32_t magic;
+  uint8_t  pending;                 // 1 = update was started, result not yet reported
+  uint8_t  attempts;                // number of tries for the firmware in md5[]
+  uint8_t  installed;               // 1 = firmware in md5[] was flashed and started
+  char     from_version[9];         // version that started the update
+  char     md5[36];                 // MD5 of the firmware file last tried
+};                                  // size must be a multiple of 4 bytes
+#endif
 
 
 #if USE_DS18B20
@@ -284,23 +352,12 @@ void setup() {
         goToSleep(10);   // go to sleep and retry after 10 min
       }
       else {
-        goToSleep(0);   // hybernate because batt empty
+        goToSleep(lowBattSleepMin);   // batt empty: long nap, retry once recharged
       }
     }
     Serial.print(".");
   }
   Serial.println(" Wifi connected ok");
-
-  if (App1 == "BLYNK") {        // for posting data to Blynk App
-    Blynk.config(BLYNK_AUTH_TOKEN);
-    Serial.print("---> Connecting to Blynk ");
-    bool blynk_ok = Blynk.connect(5000);  // 5 second timeout, non-blocking
-    if (blynk_ok) {
-      Serial.println("Blynk connected ok");
-    } else {
-      Serial.println("Blynk connection failed - continuing without Blynk");
-    }
-  }
 
   if (MQTT) connect_to_MQTT();  // connecting to MQTT broker
 
@@ -317,6 +374,21 @@ void setup() {
     }
   }
 
+#if OTA_ENABLED
+  checkForOTA();                // v2.7: as early as possible, so a faulty firmware can still be replaced
+#endif
+
+  if (App1 == "BLYNK") {        // for posting data to Blynk App
+    Blynk.config(BLYNK_AUTH_TOKEN);
+    Serial.print("---> Connecting to Blynk ");
+    bool blynk_ok = Blynk.connect(5000);  // 5 second timeout, non-blocking
+    if (blynk_ok) {
+      Serial.println("Blynk connected ok");
+    } else {
+      Serial.println("Blynk connection failed - continuing without Blynk");
+    }
+  }
+
   //******** GETTING THE TIME FROM NTP SERVER  ***********************************
 
   Serial.println("---> Now reading time from NTP Server");
@@ -327,8 +399,9 @@ void setup() {
     ii++;
     if (ii > 20) {
       Serial.println("Could not connect to NTP Server!");
-      Serial.println("Doing a reset now and retry a connection from scratch.");
-      ESP.restart();             // FIX v2.6: cleaner than jump to address 0
+      Serial.println("Going to sleep and retry on next wake-up.");
+      // FIX v2.7: was ESP.restart() = endless restart loop without sleep while NTP is unreachable.
+      goToSleep(volt > 3.4 ? sleepTimeMin : lowBattSleepMin);
     }
     Serial.print(".");
   }
@@ -394,7 +467,11 @@ void setup() {
   Serial.print("Timestamp difference: ");
   Serial.println(current_timestamp - saved_timestamp);
 
-  if (current_timestamp - saved_timestamp > 21600) {     // last save older than 6 hours -> re-initialize values
+  // FIX v2.7: without a plausible reading (BME280 missing or defective) the stored curve is not touched.
+  if (rel_pressure_rounded < 850 || rel_pressure_rounded > 1100) {
+    Serial.println("WARNING: Implausible pressure reading - pressure curve is not updated.");
+  }
+  else if (current_timestamp - saved_timestamp > 21600) {     // last save older than 6 hours -> re-initialize values
     FirstTimeRun();
   }
   else if (current_timestamp - saved_timestamp > 1700) { // it is time for pressure update (1800 sec = 30 min)
@@ -416,8 +493,11 @@ void setup() {
   //**************************Calculate Zambretti Forecast*******************************************
 
   int accuracy_in_percent = accuracy * 94 / 12;        // 94% is the max predicion accuracy of Zambretti
+  // FIX v2.7: trend and letter are always calculated. With empty battery they were
+  // skipped, which published "rising fast" and an empty zletter.
+  char letter = ZambrettiLetter();
   if ( volt > 3.4 ) {
-    ZambrettisWords = ZambrettiSays(char(ZambrettiLetter()));
+    ZambrettisWords = ZambrettiSays(letter);
   }
   else {
     ZambrettisWords = ZambrettiSays('0');   // send Message that battery is empty
@@ -493,7 +573,7 @@ void setup() {
     goToSleep(sleepTimeMin);
   }
   else {
-    goToSleep(0);
+    goToSleep(lowBattSleepMin);   // FIX v2.7: was 0 = sleep forever, station never came back after recharging
   }
 } // end of void setup()
 
@@ -551,7 +631,7 @@ void measurementEvent() {
   Serial.println("%; ");
 #endif
 
-  // ----- Selection of canonical values per Settings26.h -----
+  // ----- Selection of canonical values per Settings27.h -----
 #if   TEMP_SOURCE == SRC_BME
   measured_temp = measured_temp_bme;
 #elif TEMP_SOURCE == SRC_DAL
@@ -786,12 +866,24 @@ char ZambrettiLetter() {
 
 // ----- Seasonal precipitation word selection with hysteresis -----
 // Returns true while we're in winter mode (snow), false otherwise (rain).
-// Uses static state so the threshold can be crossed without flapping
-// between summer and winter when the temperature hovers near 2°C.
+// The state is kept in RTC memory so the threshold can be crossed without
+// flapping between summer and winter when the temperature hovers near 2°C.
+// FIX v2.7: was a static variable, which is lost in every deep sleep.
+#define WINTER_RTC_OFFSET 96          // RTC user memory block (OTA state uses 64..76)
+#define WINTER_RTC_MAGIC  0x57494E54
 bool isWinterMode() {
-  static bool winter = false;
+  uint32_t rtc[2];                    // [0] = magic, [1] = winter state of the previous run
+  bool known = ESP.rtcUserMemoryRead(WINTER_RTC_OFFSET, rtc, sizeof(rtc)) && rtc[0] == WINTER_RTC_MAGIC;
+  bool winter = known ? (rtc[1] == 1) : false;   // after power loss: start in summer mode
+
   if (winter && measured_temp > WINTER_THRESHOLD_HIGH) winter = false;
   if (!winter && measured_temp <= WINTER_THRESHOLD_LOW) winter = true;
+
+  if (!known || rtc[1] != (uint32_t)winter) {
+    rtc[0] = WINTER_RTC_MAGIC;
+    rtc[1] = winter;
+    ESP.rtcUserMemoryWrite(WINTER_RTC_OFFSET, rtc, sizeof(rtc));
+  }
   return winter;
 }
 
@@ -937,11 +1029,9 @@ void reconnect() {
     Serial.print("..attempting MQTT connection (try ");
     Serial.print(attempts + 1);
     Serial.print("/3) with ");
-    String clientId = "ESP8266Client-";
-    clientId += String(random(0xffff), HEX);
-    Serial.println(clientId.c_str());
+    Serial.println(mqtt_client_id);
 
-    if (client.connect(clientId.c_str(), mqtt_user, mqtt_pass)) {
+    if (client.connect(mqtt_client_id, mqtt_user, mqtt_pass)) {
       Serial.println("MQTT is connected");
       char tmp[128];
       String statusmessage =  StationName + ", " + Version + ": client started";
@@ -998,9 +1088,23 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 } // end void callback()
 
+#define CURVE_RTC_OFFSET 100          // RTC user memory block (OTA state 64..76, winter state 96..97)
+#define CURVE_RTC_MAGIC  0x43555256
+#define CURVE_MAX_MISSES 3            // runs in a row without retained curve before it is re-initialized
+
 void ReadFromMQTT() {
   // FIX v2.6: wait for actual message arrival (with 5s timeout) instead of
   // a blind 1s loop. Prevents ghost-FirstTimeRun() that wipes the 6h curve.
+  // FIX v2.7: if the curve is missing CURVE_MAX_MISSES times in a row while the
+  // broker is connected, there is none (new broker, new topic): initialize it.
+  // Before, the station waited forever and the forecast never started.
+  uint32_t rtc[2];                    // [0] = magic, [1] = consecutive misses
+  if (!ESP.rtcUserMemoryRead(CURVE_RTC_OFFSET, rtc, sizeof(rtc)) || rtc[0] != CURVE_RTC_MAGIC) {
+    rtc[0] = CURVE_RTC_MAGIC;
+    rtc[1] = 0;
+  }
+  uint32_t misses_before = rtc[1];
+
   Serial.println("Waiting for retained MQTT pressure curve...");
   unsigned long start = millis();
   while (!mqtt_data_received && (millis() - start < 5000)) {
@@ -1009,27 +1113,59 @@ void ReadFromMQTT() {
   }
   if (!mqtt_data_received) {
     Serial.println("WARNING: No MQTT pressure curve received within 5s.");
-    Serial.println("Skipping pressure-curve update for this cycle to preserve last known state.");
-    saved_timestamp = current_timestamp;
+    if (client.connected()) rtc[1]++;
+    if (rtc[1] >= CURVE_MAX_MISSES) {
+      Serial.println("No retained pressure curve on the broker - starting a new one.");
+      saved_timestamp = 0;              // forces FirstTimeRun()
+      rtc[1] = 0;
+    } else {
+      Serial.println("Skipping pressure-curve update for this cycle to preserve last known state.");
+      saved_timestamp = current_timestamp;
+    }
   } else {
     Serial.println("MQTT pressure curve received.");
+    rtc[1] = 0;
   }
+  if (rtc[1] != misses_before) ESP.rtcUserMemoryWrite(CURVE_RTC_OFFSET, rtc, sizeof(rtc));
 } // end of ReadFromMQTT()
 
 #if USE_DS18B20
 float getTemperature() {
   // FIX v2.6: previously took 32 reads of the SAME conversion (no-op smoothing).
   // Now performs a single proper 12-bit conversion (0.0625°C resolution).
-  s18d20.requestTemperatures();
-  delay(750);   // 12-bit conversion time per Maxim datasheet
-  float t = s18d20.getTempCByIndex(0);
+  // v2.7: one retry on a bogus reading, and a diagnosis line published
+  // (retained) on <mqtt_topic>/diag, readable without serial cable.
+  float t = -127;
+  for (int attempt = 1; attempt <= 2; attempt++) {
+    if (attempt == 2) {               // second try: search the bus again
+      s18d20.begin();
+      s18d20.setResolution(DS18B20_RESOLUTION);
+    }
+    s18d20.requestTemperatures();
+    delay(750);   // 12-bit conversion time per Maxim datasheet
+    t = s18d20.getTempCByIndex(0);
+    if (t > -127 && t < 85) break;
+  }
+  bool ok = (t > -127 && t < 85);
 
-  if (t > -127 && t < 85) {
-    return t;
+  String diag = "DS18B20: ";
+  if (ok) {
+    diag += "ok";
+  } else {
+    // raw -127 = no (valid) answer on the bus, raw 85 = sensor answers but did not convert (power)
+    diag += "ERROR raw=" + String(t, 2)
+          + " devices=" + String(s18d20.getDeviceCount())
+          + " ds18=" + String(s18d20.getDS18Count())
+          + " parasite=" + String(s18d20.isParasitePowerMode() ? 1 : 0)
+          + " bus_idle=" + String(digitalRead(ONE_WIRE_BUS) ? "HIGH" : "LOW");
   }
-  else {
-    return -88;
+  Serial.println(diag);
+  if (MQTT && client.connected()) {
+    String diag_topic = String(mqtt_topic) + "/diag";
+    client.publish(diag_topic.c_str(), diag.c_str(), true);   // true = retained
   }
+
+  return ok ? t : -88;
 }
 #endif
 
@@ -1053,6 +1189,136 @@ void WriteToMQTT() {     // Write the pressure data to MQTT instead to SPIFFS (b
   client.publish(mqtt_press_topic, p_buffer, 1);   // , 1 = retained
   delay(50);
 }
+
+#if OTA_ENABLED
+// Publishes an OTA message: retained on mqtt_ota_topic (stays visible while the
+// station sleeps) and on mqtt_status (running log).
+void otaReport(const String& text) {
+  String message = StationName + ", " + Version + ": " + text;
+  Serial.println(message);
+  if (!MQTT) return;
+  if (!client.connected()) reconnect();     // connection may have timed out during the download
+  if (!client.connected()) return;
+  client.publish(mqtt_ota_topic, message.c_str(), true);   // true = retained
+  client.publish(mqtt_status, message.c_str());
+  client.loop();
+  espClient.flush();
+  delay(100);
+}
+
+void otaLoadState(OtaState& st) {
+  if (!ESP.rtcUserMemoryRead(OTA_RTC_OFFSET, (uint32_t*)&st, sizeof(st)) || st.magic != OTA_RTC_MAGIC) {
+    memset(&st, 0, sizeof(st));
+    st.magic = OTA_RTC_MAGIC;
+  }
+  st.from_version[sizeof(st.from_version) - 1] = 0;
+  st.md5[sizeof(st.md5) - 1] = 0;
+}
+
+void otaSaveState(OtaState& st) {
+  ESP.rtcUserMemoryWrite(OTA_RTC_OFFSET, (uint32_t*)&st, sizeof(st));
+}
+
+void checkForOTA() {
+  Serial.println("---> Checking for new firmware (OTA)");
+
+  OtaState st;
+  otaLoadState(st);
+  String runningMD5 = ESP.getSketchMD5();
+
+  // ----- 1. Report the result of an update flashed in the previous run -----
+  if (st.pending) {
+    if (runningMD5 == st.md5) {
+      otaReport("OTA ok: " + String(st.from_version) + " -> " + Version);
+    } else {
+      // Happens if flash size/mode of the build differ from the hardware (header gets patched while flashing).
+      otaReport("OTA done, but MD5 of the running firmware differs from firmware.md5: " + String(st.from_version) + " -> " + Version);
+    }
+    st.pending = 0;
+    st.installed = 1;               // do not flash this file again
+    otaSaveState(st);
+  }
+
+  // ----- 2. Is there a firmware on the server that differs from the running one? -----
+  WiFiClient otaClient;
+  HTTPClient http;
+  http.setTimeout(3000);
+  if (!http.begin(otaClient, OTA_BASE_URL "firmware.md5")) {
+    Serial.println("OTA: invalid OTA_BASE_URL");
+    return;
+  }
+  int httpCode = http.GET();
+  if (httpCode != HTTP_CODE_OK) {              // no file or server not reachable: normal case, no update
+    Serial.print("OTA: no firmware.md5 on server (");
+    Serial.print(httpCode);
+    Serial.println(") - no update.");
+    http.end();
+    return;
+  }
+  String serverMD5 = http.getString();
+  http.end();
+
+  serverMD5.trim();
+  serverMD5 = serverMD5.substring(0, 32);      // tolerate "md5  filename" format
+  serverMD5.toLowerCase();
+  bool valid = (serverMD5.length() == 32);
+  for (unsigned int i = 0; valid && i < 32; i++) {
+    if (!isxdigit(serverMD5[i])) valid = false;
+  }
+  if (!valid) {
+    otaReport("OTA error: firmware.md5 on server is not a valid MD5");
+    return;
+  }
+
+  if (serverMD5 == runningMD5 || (st.installed && serverMD5 == st.md5)) {
+    Serial.println("OTA: firmware is up to date.");
+    return;
+  }
+
+  // ----- 3. New firmware found -----
+  if (serverMD5 != st.md5) {                   // a file we have not tried yet
+    strcpy(st.md5, serverMD5.c_str());
+    st.attempts = 0;
+    st.installed = 0;
+  }
+  if (st.attempts >= OTA_MAX_ATTEMPTS) {
+    Serial.println("OTA: this firmware file already failed too often - ignoring it until it is replaced.");
+    return;
+  }
+  if (volt < OTA_MIN_VOLT) {
+    otaReport("OTA postponed: battery " + String(volt, 2) + " V is below " + String(OTA_MIN_VOLT, 2) + " V");
+    return;
+  }
+
+  st.attempts++;
+  st.pending = 1;
+  strncpy(st.from_version, Version.c_str(), sizeof(st.from_version) - 1);
+  otaSaveState(st);
+
+  String attempt = "attempt " + String(st.attempts) + "/" + String(OTA_MAX_ATTEMPTS);
+  otaReport("OTA start: new firmware " + serverMD5.substring(0, 8) + " found, " + attempt);
+
+  ESPhttpUpdate.rebootOnUpdate(false);         // we restart ourselves, after the MQTT message
+  ESPhttpUpdate.closeConnectionsOnUpdate(false);   // keep the MQTT connection
+  ESPhttpUpdate.setClientTimeout(8000);
+  ESPhttpUpdate.setMD5sum(serverMD5);          // downloaded file must match firmware.md5
+  t_httpUpdate_return result = ESPhttpUpdate.update(otaClient, OTA_BASE_URL "firmware.bin");
+
+  if (result == HTTP_UPDATE_OK) {
+    otaReport("OTA: firmware flashed, restarting");
+    if (MQTT) client.disconnect();
+    delay(100);
+    ESP.restart();                             // new firmware reports "OTA ok" after the restart
+    delay(5000);
+  }
+
+  // Download or flashing failed: the old firmware is untouched, continue the normal cycle.
+  st.pending = 0;
+  otaSaveState(st);
+  String giveup = (st.attempts >= OTA_MAX_ATTEMPTS) ? ", giving up on this file" : "";
+  otaReport("OTA error (" + attempt + giveup + "): " + ESPhttpUpdate.getLastErrorString() + " - continuing with " + Version);
+}
+#endif
 
 void goToSleep(unsigned int sleepmin) {
   // FIX v2.6: only publish status if MQTT is actually connected.
@@ -1080,5 +1346,5 @@ void goToSleep(unsigned int sleepmin) {
   Serial.print ("Going to sleep now for ");
   Serial.print (sleepmin);
   Serial.print (" Minute(s).");
-  ESP.deepSleep(sleepmin * 60 * 1000000); // convert to microseconds
+  ESP.deepSleep((uint64_t)sleepmin * 60 * 1000000); // convert to microseconds (64 bit: no overflow above 71 min)
 } // end of goToSleep()
